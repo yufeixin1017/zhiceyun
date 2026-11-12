@@ -1,0 +1,46 @@
+import { randomUUID } from "node:crypto";
+import { NextResponse } from "next/server";
+import { ZodError } from "zod";
+import { generateAiQuestions, isAiConfigured } from "@/lib/ai-generator";
+import { generateDemoQuestions } from "@/lib/demo-generator";
+import { generateQuizRequestSchema, quizSchema } from "@/lib/domain";
+import { createQuiz } from "@/lib/store";
+
+export const runtime = "nodejs";
+export const maxDuration = 90;
+
+export async function POST(request: Request) {
+  try {
+    const input = generateQuizRequestSchema.parse(await request.json());
+    const mode = input.mode ?? (isAiConfigured() ? "ai" : "demo");
+    if (mode === "ai" && !isAiConfigured()) {
+      return NextResponse.json({ message: "尚未配置大模型 API，请使用演示模式或先配置 AI_API_KEY" }, { status: 400 });
+    }
+    const questions = mode === "ai" ? await generateAiQuestions(input) : generateDemoQuestions(input);
+    const now = new Date().toISOString();
+    const quiz = quizSchema.parse({
+      id: randomUUID(),
+      title: `${input.topic}随堂测验`,
+      courseName: input.courseName,
+      topic: input.topic,
+      sourceContent: input.sourceContent,
+      difficulty: input.difficulty,
+      durationMinutes: input.durationMinutes,
+      status: "draft",
+      generationMode: mode,
+      questions,
+      createdAt: now,
+      updatedAt: now,
+    });
+    await createQuiz(quiz);
+    return NextResponse.json({ quiz }, { status: 201 });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json({ message: "生成的题目未通过校验，请调整要求后重试", issues: error.issues }, { status: 422 });
+    }
+    return NextResponse.json(
+      { message: error instanceof Error ? error.message : "生成失败，请稍后重试" },
+      { status: 500 },
+    );
+  }
+}

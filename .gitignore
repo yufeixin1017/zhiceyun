@@ -1,0 +1,24 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# Next.js
+.next/
+out/
+
+# local runtime data
+data/*.json
+data/*.tmp
+
+# environment and logs
+.env
+.env.local
+.env.*.local
+*.log
+
+# system files
+.DS_Store
+
+# test output and coverage
+.test-dist/
+coverage/

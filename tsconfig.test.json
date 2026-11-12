@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "incremental": false,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": ".test-dist",
+    "rootDir": "src",
+    "types": ["node"],
+    "plugins": []
+  },
+  "include": ["src/lib/**/*.ts"],
+  "exclude": ["node_modules", ".test-dist"]
+}
