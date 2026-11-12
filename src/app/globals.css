@@ -289,6 +289,23 @@ button:disabled { cursor: not-allowed; opacity: .58; }
 .explanation { padding: 12px 14px; color: #565f74; background: #f6f7ff; border-radius: 9px; font-size: 12px; line-height: 1.8; }
 .explanation strong { color: var(--primary); }
 
+.text-success { color: var(--teal); }
+.question-link { margin-left: auto; color: var(--primary); font-size: 12px; }
+.question-link:hover, .performance-row-top a:hover, .summary-row a:hover { text-decoration: underline; }
+.performance-row-top a { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.analysis-question-card { margin-bottom: 20px; }
+.analysis-question-stem { margin: 0 0 17px; font-size: 16px; line-height: 1.85; white-space: pre-wrap; }
+.student-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.student-chip { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 7px 10px; color: #5058a9; background: #f4f4ff; border: 1px solid #e2e3fa; border-radius: 9px; font-size: 12px; }
+.student-chip:hover { color: var(--primary); border-color: #babcf3; background: #ececff; }
+.student-chip small { color: var(--soft); font-size: 10px; }
+.option-analysis-list, .answer-group-list { display: grid; gap: 14px; }
+.option-analysis, .answer-group { padding: 15px; background: #fafbfe; border: 1px solid #eceff5; border-radius: 12px; }
+.option-analysis-head, .answer-group-head { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 11px; color: var(--muted); font-size: 12px; }
+.option-analysis-head > div, .answer-group-head > div { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.option-analysis-head strong, .answer-group-head strong { color: var(--ink); font-size: 13px; font-weight: 650; }
+.option-analysis .progress-track { margin-bottom: 13px; }
+
 .toast { position: fixed; right: 24px; bottom: 24px; z-index: 100; padding: 13px 18px; border-radius: 11px; color: white; background: #242d48; box-shadow: var(--shadow); font-size: 13px; animation: toast-in .2s ease-out; }
 @keyframes toast-in { from { transform: translateY(10px); opacity: 0; } }
 
