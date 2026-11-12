@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { SharePanel } from "@/components/share-panel";
 import { StatusBadge } from "@/components/status-badge";
+import { QuestionDistribution } from "@/components/question-distribution";
 import { getQuizAnalytics } from "@/lib/analytics";
 import { QUESTION_TYPE_LABELS } from "@/lib/domain";
 import { getTeacherQuiz, listSubmissions } from "@/lib/store";
@@ -50,8 +51,11 @@ export default async function QuizResultsPage({ params }: { params: Promise<{ id
           {submissions.length === 0 ? <div className="empty-state" style={{ padding: "30px 20px" }}><div className="empty-icon"><UsersRound size={27} /></div><h3>还没有学生提交</h3><p>复制上方作答链接或展示二维码，学生提交后即可看到统计。</p></div> : <div className="table-wrap"><table className="data-table"><thead><tr><th>学生</th><th>学号</th><th>得分</th><th>答对题数</th><th>正确率</th><th>提交时间</th><th>操作</th></tr></thead><tbody>{submissions.map((submission) => <tr key={submission.id}><td><Link href={`/teacher/quizzes/${quiz.id}/students/${submission.id}`} title="查看该学生逐题作答"><span className="student-avatar">{submission.studentName.slice(0, 1)}</span>{submission.studentName}</Link></td><td>{submission.studentNo || "—"}</td><td><strong>{submission.score}</strong> / {submission.totalScore}</td><td>{submission.correctCount} / {quiz.questions.length}</td><td>{Math.round((submission.correctCount / quiz.questions.length) * 100)}%</td><td>{formatDate(submission.submittedAt)}</td><td><Link className="btn btn-secondary btn-sm" href={`/teacher/quizzes/${quiz.id}/students/${submission.id}`}>查看作答</Link></td></tr>)}</tbody></table></div>}
         </section>
         <section className="card panel" style={{ marginTop: 20 }}>
-          <div className="panel-header"><div><h2>题目与标准答案</h2><p>仅教师端显示，用于核对评分结果</p></div></div>
-          {quiz.questions.map((question, index) => <div className="summary-row" key={question.id}><Link href={`/teacher/quizzes/${quiz.id}/questions/${question.id}`}>{index + 1}. [{QUESTION_TYPE_LABELS[question.type]}] {question.stem}</Link><strong>{question.type === "true_false" ? (question.answer[0] === "true" ? "正确" : "错误") : question.answer.join("、")} · {question.score} 分</strong></div>)}
+          <div className="panel-header"><div><h2>题目与标准答案</h2><p>点击任意题目，直接展开作答分布和对应学生名单</p></div></div>
+          <div className="question-accordion-list">{quiz.questions.map((question, index) => <details className="question-accordion" key={question.id} open={index === 0}>
+            <summary className="question-summary"><span>{index + 1}. [{QUESTION_TYPE_LABELS[question.type]}] {question.stem}</span><strong>{question.type === "true_false" ? (question.answer[0] === "true" ? "正确" : "错误") : question.answer.join("、")} · {question.score} 分</strong></summary>
+            <div className="question-accordion-body"><QuestionDistribution quizId={quiz.id} question={question} submissions={submissions} independentHref={`/teacher/quizzes/${quiz.id}/questions/${question.id}`} /></div>
+          </details>)}</div>
         </section>
       </main>
     </>

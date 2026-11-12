@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { authenticateTeacher, hasInitializedTeacher, normalizeEmail } from "@/lib/auth-accounts";
+import { authenticateTeacher, hasInitializedTeacher } from "@/lib/auth-accounts";
+import { normalizePhone } from "@/lib/phone";
 import { createTeacherSession } from "@/lib/auth";
 import { clearLoginFailures, isLoginRateLimited, recordLoginFailure } from "@/lib/auth-rate-limit";
 
 const loginSchema = z.object({
-  email: z.string().trim().email("请输入有效邮箱").max(190),
+  phone: z.string().trim().min(1, "请输入手机号").max(30),
   password: z.string().min(1, "请输入密码").max(128),
 });
 
@@ -18,14 +19,14 @@ export async function POST(request: Request) {
     }
     const input = loginSchema.parse(await request.json());
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "local";
-    const rateLimitKey = `${ip}:${normalizeEmail(input.email)}`;
+    const rateLimitKey = `${ip}:${normalizePhone(input.phone)}`;
     if (isLoginRateLimited(rateLimitKey)) {
       return NextResponse.json({ message: "登录尝试次数过多，请 15 分钟后再试" }, { status: 429 });
     }
-    const teacher = await authenticateTeacher(input.email, input.password);
+    const teacher = await authenticateTeacher(input.phone, input.password);
     if (!teacher) {
       recordLoginFailure(rateLimitKey);
-      return NextResponse.json({ message: "邮箱或密码不正确" }, { status: 401 });
+      return NextResponse.json({ message: "手机号或密码不正确" }, { status: 401 });
     }
     clearLoginFailures(rateLimitKey);
     await createTeacherSession(teacher.id);

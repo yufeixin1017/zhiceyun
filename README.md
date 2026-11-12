@@ -10,7 +10,7 @@
 
 ### 教师端
 
-- 首次创建教师账号，邮箱密码登录与安全退出；
+- 首次创建教师账号，手机号密码登录与安全退出；
 - scrypt 密码哈希、MySQL 会话、HttpOnly Cookie；
 - 按教师隔离测验、学生成绩和导出权限；
 - 输入课程名称、课堂主题和讲义要点；
@@ -77,6 +77,8 @@ cp .env.example .env.local
 ```bash
 mysql --protocol=TCP -h 127.0.0.1 -P 3306 -u root \
   < database/migrations/001_initial_schema.sql
+mysql --protocol=TCP -h 127.0.0.1 -P 3306 -u root zhiceyun \
+  < database/migrations/002_teacher_phone_login.sql
 ```
 
 在 `.env.local` 中配置实际数据库账号（密码中的特殊字符需要 URL 编码）：
@@ -142,7 +144,7 @@ pnpm test:smoke
 
 测试会真实创建并发布一份演示测验，验证教师认证、学生免登录、满分、零分、重复学号拦截、答案不泄露、统计页和 CSV 导出，最后输出可打开的教师端与学生端链接。
 
-测试默认使用 `smoke-teacher@example.com` 和测试密码 `Classroom2026`。已有测试账号时直接登录；独立测试数据库可设置 `SMOKE_ALLOW_SETUP=1` 允许自动初始化。正式数据库请先在页面创建教师，再通过 `TEACHER_TEST_EMAIL`、`TEACHER_TEST_PASSWORD` 提供测试登录信息，不要对正式账号开启自动初始化。
+测试默认使用手机号 `13800000000` 和测试密码 `Classroom2026`。已有测试账号时直接登录；独立测试数据库可设置 `SMOKE_ALLOW_SETUP=1` 允许自动初始化。正式数据库请先在页面创建教师，再通过 `TEACHER_TEST_PHONE`、`TEACHER_TEST_PASSWORD` 提供测试登录信息，不要对正式账号开启自动初始化。
 
 ### macOS 原生签名兼容说明
 
@@ -151,7 +153,7 @@ pnpm test:smoke
 ## 数据与复现说明
 
 - 运行数据保存在 MySQL 的 `zhiceyun` 数据库中；
-- 初始化脚本位于 `database/migrations/001_initial_schema.sql`；
+- 初始化与手机号迁移脚本位于 `database/migrations/`；
 - 原 `data/database.json` 仅作为早期演示数据备份，不再参与运行；
 - 环境密钥、本地数据文件和构建产物均被 `.gitignore` 排除；
 - 教师登录、会话和按教师隔离数据已启用，学生公开作答无需登录；

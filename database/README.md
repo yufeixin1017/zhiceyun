@@ -11,15 +11,17 @@
 ```bash
 mysql --protocol=TCP -h 127.0.0.1 -P 3306 -u root \
   < database/migrations/001_initial_schema.sql
+mysql --protocol=TCP -h 127.0.0.1 -P 3306 -u root zhiceyun \
+  < database/migrations/002_teacher_phone_login.sql
 ```
 
-该脚本使用 `CREATE DATABASE IF NOT EXISTS` 和 `CREATE TABLE IF NOT EXISTS`，不会主动删除或覆盖已有数据。它适用于首次初始化，不代替后续正式迁移工具。
+初始化使用 `CREATE DATABASE IF NOT EXISTS`、`CREATE TABLE IF NOT EXISTS` 和条件迁移，不会主动删除或覆盖已有数据。`002` 将教师登录方式迁移为手机号，保留旧 `email` 列作为可空兼容字段；已迁移数据库也可重复执行。
 
 ## 数据表
 
 | 表 | 用途 |
 |---|---|
-| `teachers` | 教师账号及密码哈希 |
+| `teachers` | 教师手机号、姓名及密码哈希 |
 | `teacher_sessions` | 教师登录会话，保存令牌哈希和过期时间 |
 | `quizzes` | 教师创建的测验、课堂内容和发布状态 |
 | `questions` | 题目、选项、答案、解析、知识点、分值和排列位置 |

@@ -36,7 +36,7 @@ export async function getCurrentTeacher(): Promise<Teacher | null> {
   const [row] = await getDb().select({
     id: teachers.id,
     name: teachers.name,
-    email: teachers.email,
+    phone: teachers.phone,
   }).from(teacherSessions)
     .innerJoin(teachers, eq(teacherSessions.teacherId, teachers.id))
     .where(and(
@@ -44,7 +44,8 @@ export async function getCurrentTeacher(): Promise<Teacher | null> {
       gt(teacherSessions.expiresAt, new Date()),
     ))
     .limit(1);
-  return row ?? null;
+  if (!row?.phone) return null;
+  return { id: row.id, name: row.name, phone: row.phone };
 }
 
 export async function requireTeacher(nextPath = "/teacher"): Promise<Teacher> {

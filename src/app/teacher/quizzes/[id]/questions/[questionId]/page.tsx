@@ -6,17 +6,18 @@ import { AppHeader } from "@/components/app-header";
 import { StudentList } from "@/components/student-list";
 import { getQuestionAnalysis } from "@/lib/answer-analysis";
 import { QUESTION_TYPE_LABELS } from "@/lib/domain";
-import { getTeacherQuiz, listSubmissions } from "@/lib/store";
+import { getSubmission, getTeacherQuiz, listSubmissions } from "@/lib/store";
 import { requireTeacher } from "@/lib/auth";
 import { getAnswerLabel } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "题目作答分布与学生名单" };
 export const dynamic = "force-dynamic";
 
-export default async function QuestionAnalysisPage({ params }: {
+export default async function QuestionAnalysisPage({ params, searchParams }: {
   params: Promise<{ id: string; questionId: string }>;
+  searchParams: Promise<{ from?: string; submissionId?: string }>;
 }) {
-  const { id, questionId } = await params;
+  const [{ id, questionId }, query] = await Promise.all([params, searchParams]);
   const teacher = await requireTeacher(`/teacher/quizzes/${id}/questions/${questionId}`);
   const quiz = await getTeacherQuiz(id, teacher.id);
   if (!quiz) notFound();
@@ -26,15 +27,22 @@ export default async function QuestionAnalysisPage({ params }: {
   const submissions = await listSubmissions(id);
   const analysis = getQuestionAnalysis(question, submissions);
   const correctRate = analysis.total ? Math.round((analysis.correctCount / analysis.total) * 100) : 0;
+  const sourceSubmission = query.from === "student" && query.submissionId
+    ? await getSubmission(id, query.submissionId)
+    : null;
+  const backHref = sourceSubmission
+    ? `/teacher/quizzes/${quiz.id}/students/${sourceSubmission.id}`
+    : `/teacher/quizzes/${quiz.id}`;
+  const backLabel = sourceSubmission ? `返回${sourceSubmission.studentName}的作答` : "返回班级统计";
 
   return (
     <>
       <AppHeader />
       <main className="page-container">
-        <div className="breadcrumb"><Link href="/teacher">测验工作台</Link><ChevronRight size={13} /><Link href={`/teacher/quizzes/${quiz.id}`}>测验结果</Link><ChevronRight size={13} /><span>题目作答分析</span></div>
+        <div className="breadcrumb"><Link href="/teacher">测验工作台</Link><ChevronRight size={13} /><Link href={`/teacher/quizzes/${quiz.id}`}>测验结果</Link>{sourceSubmission && <><ChevronRight size={13} /><Link href={backHref}>{sourceSubmission.studentName}的作答</Link></>}<ChevronRight size={13} /><span>题目作答分析</span></div>
         <div className="page-heading">
           <div><div style={{ display: "flex", gap: 9, alignItems: "center", marginBottom: 9 }}><span className="badge badge-type">第 {questionIndex + 1} 题 · {QUESTION_TYPE_LABELS[question.type]}</span><span className="badge badge-ai">{question.knowledgePoint}</span></div><h1>题目作答分析</h1><p>{quiz.title}</p></div>
-          <Link href={`/teacher/quizzes/${quiz.id}`} className="btn btn-secondary"><ArrowLeft size={16} />返回班级统计</Link>
+          <Link href={backHref} className="btn btn-secondary"><ArrowLeft size={16} />{backLabel}</Link>
         </div>
         <section className="card panel analysis-question-card">
           <div className="panel-header"><div><h2>题目与标准答案</h2><p>{question.score} 分 · 仅教师端可见</p></div><ClipboardList size={20} className="soft" /></div>

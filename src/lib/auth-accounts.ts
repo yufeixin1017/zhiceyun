@@ -2,14 +2,11 @@ import { eq, notLike } from "drizzle-orm";
 import { getDb } from "./db";
 import { teachers } from "./db/schema";
 import { getPasswordError, hashPassword, verifyPassword } from "./password";
+import { getPhoneError, normalizePhone } from "./phone";
 import type { Teacher } from "./auth-types";
 
 export const LOCAL_TEACHER_ID = "00000000-0000-0000-0000-000000000001";
 const LOCAL_TEACHER_EMAIL = "local@zhiceyun.internal";
-
-export function normalizeEmail(email: string): string {
-  return email.trim().toLocaleLowerCase();
-}
 
 export async function hasInitializedTeacher(): Promise<boolean> {
   const [teacher] = await getDb().select({ id: teachers.id }).from(teachers)
@@ -20,17 +17,19 @@ export async function hasInitializedTeacher(): Promise<boolean> {
 
 export async function createFirstTeacher(input: {
   name: string;
-  email: string;
+  phone: string;
   password: string;
 }): Promise<Teacher> {
   if (await hasInitializedTeacher()) throw new Error("教师账号已经初始化，请直接登录");
+  const phoneError = getPhoneError(input.phone);
+  if (phoneError) throw new Error(phoneError);
   const passwordError = getPasswordError(input.password);
   if (passwordError) throw new Error(passwordError);
 
   const teacher: Teacher = {
     id: LOCAL_TEACHER_ID,
     name: input.name.trim(),
-    email: normalizeEmail(input.email),
+    phone: normalizePhone(input.phone),
   };
   const passwordHash = await hashPassword(input.password);
   const now = new Date();
@@ -42,7 +41,8 @@ export async function createFirstTeacher(input: {
       if (existing) {
         await transaction.update(teachers).set({
           name: teacher.name,
-          email: teacher.email,
+          phone: teacher.phone,
+          email: null,
           passwordHash,
           updatedAt: now,
         }).where(eq(teachers.id, LOCAL_TEACHER_ID));
@@ -52,20 +52,22 @@ export async function createFirstTeacher(input: {
     });
   } catch (error) {
     if (error instanceof Error && "code" in error && (error as Error & { code?: string }).code === "ER_DUP_ENTRY") {
-      throw new Error("该邮箱已被使用，请更换邮箱");
+      throw new Error("该手机号已被使用，请更换手机号");
     }
     throw error;
   }
   return teacher;
 }
 
-export async function authenticateTeacher(email: string, password: string): Promise<Teacher | null> {
+export async function authenticateTeacher(phone: string, password: string): Promise<Teacher | null> {
+  const normalizedPhone = normalizePhone(phone);
+  if (getPhoneError(normalizedPhone)) return null;
   const [teacher] = await getDb().select().from(teachers)
-    .where(eq(teachers.email, normalizeEmail(email)))
+    .where(eq(teachers.phone, normalizedPhone))
     .limit(1);
-  if (!teacher || teacher.passwordHash.startsWith("DISABLED_")) return null;
+  if (!teacher || !teacher.phone || teacher.passwordHash.startsWith("DISABLED_")) return null;
   if (!(await verifyPassword(password, teacher.passwordHash))) return null;
-  return { id: teacher.id, name: teacher.name, email: teacher.email };
+  return { id: teacher.id, name: teacher.name, phone: teacher.phone };
 }
 
 export async function ensureLocalTeacher(): Promise<void> {

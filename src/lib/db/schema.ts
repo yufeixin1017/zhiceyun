@@ -17,7 +17,8 @@ import type { Question, QuestionType, Quiz } from "../domain";
 export const teachers = mysqlTable("teachers", {
   id: char("id", { length: 36 }).primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
-  email: varchar("email", { length: 190 }).notNull().unique(),
+  phone: varchar("phone", { length: 20 }).unique(),
+  email: varchar("email", { length: 190 }).unique(),
   passwordHash: varchar("password_hash", { length: 255 }).notNull(),
   createdAt: datetime("created_at", { mode: "date", fsp: 3 }).notNull().default(sql`CURRENT_TIMESTAMP(3)`),
   updatedAt: datetime("updated_at", { mode: "date", fsp: 3 }).notNull().default(sql`CURRENT_TIMESTAMP(3)`),

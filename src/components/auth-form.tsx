@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, LockKeyhole, Mail, UserRound } from "lucide-react";
+import { ArrowRight, LockKeyhole, Phone, UserRound } from "lucide-react";
 import { Logo } from "./logo";
 
 export function AuthForm({ mode, nextPath = "/teacher", showSetupLink = false }: {
@@ -12,7 +12,7 @@ export function AuthForm({ mode, nextPath = "/teacher", showSetupLink = false }:
 }) {
   const isSetup = mode === "setup";
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,7 +30,7 @@ export function AuthForm({ mode, nextPath = "/teacher", showSetupLink = false }:
       const response = await fetch(`/api/auth/${mode}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(isSetup ? { name, email, password } : { email, password }),
+        body: JSON.stringify(isSetup ? { name, phone, password } : { phone, password }),
       });
       const data = (await response.json()) as { message?: string };
       if (!response.ok) throw new Error(data.message || "操作失败，请重试");
@@ -53,7 +53,7 @@ export function AuthForm({ mode, nextPath = "/teacher", showSetupLink = false }:
         {error && <div className="error-box" role="alert">{error}</div>}
         <form onSubmit={submit}>
           {isSetup && <div className="field"><label htmlFor="name">教师姓名</label><div className="auth-input"><UserRound size={16} /><input id="name" value={name} onChange={(event) => setName(event.target.value)} placeholder="例如：张老师" required maxLength={100} /></div></div>}
-          <div className="field"><label htmlFor="email">登录邮箱</label><div className="auth-input"><Mail size={16} /><input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@example.com" autoComplete="email" required maxLength={190} /></div></div>
+          <div className="field"><label htmlFor="phone">登录手机号</label><div className="auth-input"><Phone size={16} /><input id="phone" type="tel" inputMode="numeric" value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="请输入 11 位手机号" autoComplete="tel" required maxLength={30} /></div></div>
           <div className="field"><label htmlFor="password">密码{isSetup && <small>至少 8 位，包含字母和数字</small>}</label><div className="auth-input"><LockKeyhole size={16} /><input id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder={isSetup ? "设置教师登录密码" : "输入教师登录密码"} autoComplete={isSetup ? "new-password" : "current-password"} required maxLength={128} /></div></div>
           {isSetup && <div className="field"><label htmlFor="confirm-password">确认密码</label><div className="auth-input"><LockKeyhole size={16} /><input id="confirm-password" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} placeholder="再次输入密码" autoComplete="new-password" required maxLength={128} /></div></div>}
           <button className="btn btn-primary btn-lg btn-block" type="submit" disabled={loading}>{loading ? <span className="loading-spinner" /> : <ArrowRight size={17} />}{loading ? "请稍候…" : isSetup ? "创建账号并进入工作台" : "登录并进入工作台"}</button>

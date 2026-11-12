@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 const baseUrl = process.env.SMOKE_BASE_URL || "http://127.0.0.1:3000";
 const marker = Date.now().toString().slice(-8);
 const credentials = {
-  email: process.env.TEACHER_TEST_EMAIL || "smoke-teacher@example.com",
+  phone: process.env.TEACHER_TEST_PHONE || "13800000000",
   password: process.env.TEACHER_TEST_PASSWORD || "Classroom2026",
 };
 let cookie = "";
@@ -63,7 +63,7 @@ if (session.response.status === 401) {
 }
 session = await request("/api/auth/session");
 assert.equal(session.response.status, 200);
-assert.equal(session.body.teacher.email, credentials.email);
+assert.equal(session.body.teacher.phone, credentials.phone);
 
 const generation = await request("/api/quizzes/generate", {
   method: "POST",

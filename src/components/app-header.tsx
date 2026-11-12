@@ -16,7 +16,7 @@ export async function AppHeader() {
         <nav aria-label="教师端导航">
           <Link href="/teacher" className="active"><LayoutDashboard size={16} /><span>测验工作台</span></Link>
           <Link href="/teacher/create"><Plus size={16} /><span>创建测验</span></Link>
-          {teacher && <span className="nav-user" title={teacher.email}><UserRound size={15} /><span>{teacher.name}</span></span>}
+          {teacher && <span className="nav-user" title={teacher.phone}><UserRound size={15} /><span>{teacher.name}</span></span>}
           <LogoutButton />
         </nav>
       </div>

@@ -5,7 +5,7 @@ import { createTeacherSession } from "@/lib/auth";
 
 const setupSchema = z.object({
   name: z.string().trim().min(1, "请填写教师姓名").max(100),
-  email: z.string().trim().email("请输入有效邮箱").max(190),
+  phone: z.string().trim().min(1, "请输入手机号").max(30),
   password: z.string().min(1).max(128),
 });
 
