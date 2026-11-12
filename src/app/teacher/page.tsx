@@ -41,7 +41,7 @@ export default async function TeacherDashboard() {
             <div className="empty-state">
               <div className="empty-icon"><FilePlus2 size={30} /></div>
               <h3>还没有随堂测验</h3>
-              <p>我们已准备好示例课堂内容，点击即可体验完整生成流程。</p>
+              <p>输入本节课内容，即可体验完整生成流程。</p>
               <Link href="/teacher/create" className="btn btn-primary">创建第一份测验<ArrowRight size={16} /></Link>
             </div>
           ) : (

@@ -11,3 +11,14 @@ export const DEFAULT_GENERATION_REQUEST: GenerateQuizRequest = {
   durationMinutes: 10,
   mode: "demo",
 };
+
+export const EMPTY_GENERATION_REQUEST: GenerateQuizRequest = {
+  courseName: "",
+  topic: "",
+  sourceContent: "",
+  questionCount: 6,
+  questionTypes: ["single_choice", "multiple_choice", "true_false", "fill_blank"],
+  difficulty: "medium",
+  durationMinutes: 10,
+  mode: "demo",
+};

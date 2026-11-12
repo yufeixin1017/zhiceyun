@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BookOpen, CheckSquare2, CircleDot, FileInput, Info, ListChecks, Sparkles, WandSparkles } from "lucide-react";
-import { DEFAULT_GENERATION_REQUEST } from "@/lib/demo-data";
+import { EMPTY_GENERATION_REQUEST } from "@/lib/demo-data";
 import { DIFFICULTY_LABELS, QUESTION_TYPE_LABELS } from "@/lib/domain";
 import type { GenerateQuizRequest, QuestionType, Quiz } from "@/lib/domain";
 
@@ -16,7 +16,7 @@ const TYPE_ICONS: Record<QuestionType, React.ReactNode> = {
 
 export function CreateQuizForm() {
   const router = useRouter();
-  const [form, setForm] = useState<GenerateQuizRequest>(DEFAULT_GENERATION_REQUEST);
+  const [form, setForm] = useState<GenerateQuizRequest>(EMPTY_GENERATION_REQUEST);
   const [aiConfigured, setAiConfigured] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -66,8 +66,8 @@ export function CreateQuizForm() {
         <section className="form-section">
           <h2 className="form-section-title"><span>1</span>这节课讲了什么？</h2>
           <div className="form-grid">
-            <div className="field"><label htmlFor="course">课程名称</label><input id="course" className="input" value={form.courseName} onChange={(event) => update("courseName", event.target.value)} placeholder="例如：机器学习导论" required maxLength={100} /></div>
-            <div className="field"><label htmlFor="topic">本节课主题</label><input id="topic" className="input" value={form.topic} onChange={(event) => update("topic", event.target.value)} placeholder="例如：过拟合与模型泛化" required maxLength={200} /></div>
+            <div className="field"><label htmlFor="course">课程名称</label><input id="course" className="input" value={form.courseName} onChange={(event) => update("courseName", event.target.value)} placeholder="请输入实际课程名称" required maxLength={100} /></div>
+            <div className="field"><label htmlFor="topic">本节课主题</label><input id="topic" className="input" value={form.topic} onChange={(event) => update("topic", event.target.value)} placeholder="请输入本节课主题" required maxLength={200} /></div>
           </div>
           <div className="field">
             <label htmlFor="content">课堂内容或讲义要点<small>{form.sourceContent.length} / 12000</small></label>

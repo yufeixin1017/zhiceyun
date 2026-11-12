@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { DEFAULT_GENERATION_REQUEST } from "./demo-data";
+import { DEFAULT_GENERATION_REQUEST, EMPTY_GENERATION_REQUEST } from "./demo-data";
 import { generateDemoQuestions } from "./demo-generator";
 
 describe("demo generator", () => {
@@ -18,5 +18,12 @@ describe("demo generator", () => {
       questionTypes: ["true_false"],
     });
     assert.equal(questions.every((question) => question.type === "true_false"), true);
+  });
+
+  it("keeps all teacher-provided content empty in the creation form defaults", () => {
+    assert.equal(EMPTY_GENERATION_REQUEST.courseName, "");
+    assert.equal(EMPTY_GENERATION_REQUEST.topic, "");
+    assert.equal(EMPTY_GENERATION_REQUEST.sourceContent, "");
+    assert.equal(EMPTY_GENERATION_REQUEST.questionCount, 6);
   });
 });
