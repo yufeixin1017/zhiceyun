@@ -4,13 +4,15 @@ import Link from "next/link";
 import { AppHeader } from "@/components/app-header";
 import { StatusBadge } from "@/components/status-badge";
 import { listQuizzes, listSubmissions } from "@/lib/store";
+import { requireTeacher } from "@/lib/auth";
 import { formatDate } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "教师工作台" };
 export const dynamic = "force-dynamic";
 
 export default async function TeacherDashboard() {
-  const quizzes = await listQuizzes();
+  const teacher = await requireTeacher("/teacher");
+  const quizzes = await listQuizzes(teacher.id);
   const quizRows = await Promise.all(
     quizzes.map(async (quiz) => ({ quiz, submissions: await listSubmissions(quiz.id) })),
   );
@@ -24,7 +26,7 @@ export default async function TeacherDashboard() {
       <AppHeader />
       <main className="page-container">
         <div className="page-heading">
-          <div><h1>上午好，老师</h1><p>从一节课堂内容开始，快速获得真实的学习反馈。</p></div>
+          <div><h1>上午好，{teacher.name}老师</h1><p>从一节课堂内容开始，快速获得真实的学习反馈。</p></div>
           <Link href="/teacher/create" className="btn btn-primary"><Plus size={17} />创建随堂测验</Link>
         </div>
         <section className="stats-grid" aria-label="测验概览">

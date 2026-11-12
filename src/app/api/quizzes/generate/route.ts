@@ -6,11 +6,14 @@ import { generateDemoQuestions } from "@/lib/demo-generator";
 import { generateQuizRequestSchema, quizSchema } from "@/lib/domain";
 import { createQuiz } from "@/lib/store";
 import { organizeQuestions } from "@/lib/question-order";
+import { getCurrentTeacher } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const maxDuration = 90;
 
 export async function POST(request: Request) {
+  const teacher = await getCurrentTeacher();
+  if (!teacher) return NextResponse.json({ message: "请先登录教师账号" }, { status: 401 });
   try {
     const input = generateQuizRequestSchema.parse(await request.json());
     const mode = input.mode ?? (isAiConfigured() ? "ai" : "demo");
@@ -34,7 +37,7 @@ export async function POST(request: Request) {
       createdAt: now,
       updatedAt: now,
     });
-    await createQuiz(quiz);
+    await createQuiz(quiz, teacher.id);
     return NextResponse.json({ quiz }, { status: 201 });
   } catch (error) {
     if (error instanceof ZodError) {

@@ -6,7 +6,8 @@ import { AppHeader } from "@/components/app-header";
 import { StudentList } from "@/components/student-list";
 import { getQuestionAnalysis } from "@/lib/answer-analysis";
 import { QUESTION_TYPE_LABELS } from "@/lib/domain";
-import { getQuiz, listSubmissions } from "@/lib/store";
+import { getTeacherQuiz, listSubmissions } from "@/lib/store";
+import { requireTeacher } from "@/lib/auth";
 import { getAnswerLabel } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "题目作答分布与学生名单" };
@@ -16,7 +17,8 @@ export default async function QuestionAnalysisPage({ params }: {
   params: Promise<{ id: string; questionId: string }>;
 }) {
   const { id, questionId } = await params;
-  const quiz = await getQuiz(id);
+  const teacher = await requireTeacher(`/teacher/quizzes/${id}/questions/${questionId}`);
+  const quiz = await getTeacherQuiz(id, teacher.id);
   if (!quiz) notFound();
   const questionIndex = quiz.questions.findIndex((item) => item.id === questionId);
   if (questionIndex < 0) notFound();

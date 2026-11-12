@@ -1,8 +1,11 @@
-import { LayoutDashboard, Plus } from "lucide-react";
+import { LayoutDashboard, Plus, UserRound } from "lucide-react";
 import Link from "next/link";
+import { getCurrentTeacher } from "@/lib/auth";
 import { Logo } from "./logo";
+import { LogoutButton } from "./logout-button";
 
-export function AppHeader() {
+export async function AppHeader() {
+  const teacher = await getCurrentTeacher();
   return (
     <header className="app-header">
       <div className="container app-header-inner">
@@ -13,6 +16,8 @@ export function AppHeader() {
         <nav aria-label="教师端导航">
           <Link href="/teacher" className="active"><LayoutDashboard size={16} /><span>测验工作台</span></Link>
           <Link href="/teacher/create"><Plus size={16} /><span>创建测验</span></Link>
+          {teacher && <span className="nav-user" title={teacher.email}><UserRound size={15} /><span>{teacher.name}</span></span>}
+          <LogoutButton />
         </nav>
       </div>
     </header>

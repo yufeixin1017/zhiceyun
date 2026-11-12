@@ -306,6 +306,22 @@ button:disabled { cursor: not-allowed; opacity: .58; }
 .option-analysis-head strong, .answer-group-head strong { color: var(--ink); font-size: 13px; font-weight: 650; }
 .option-analysis .progress-track { margin-bottom: 13px; }
 
+.auth-page { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; background: radial-gradient(circle at 50% 10%, #e8e9ff 0, transparent 38%), var(--canvas); }
+.auth-brand { margin-bottom: 24px; }
+.auth-card { width: min(440px, 100%); padding: 32px; box-shadow: 0 22px 70px rgba(43, 48, 94, .1); }
+.auth-heading { margin-bottom: 25px; }
+.auth-heading h1 { margin: 18px 0 9px; font-size: 28px; letter-spacing: -.7px; }
+.auth-heading p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.auth-input { height: 45px; display: flex; align-items: center; gap: 9px; padding: 0 13px; background: white; border: 1px solid #dfe4ed; border-radius: 10px; color: var(--soft); }
+.auth-input:focus-within { border-color: #9b9deb; box-shadow: 0 0 0 3px #eeeeff; }
+.auth-input input { flex: 1; min-width: 0; height: 100%; color: var(--ink); background: transparent; border: 0; outline: 0; }
+.auth-footer { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; text-align: center; }
+.auth-footer a { color: var(--primary); font-weight: 650; }
+.auth-note { margin: 18px 0 0; color: var(--soft); font-size: 11px; }
+.nav-user { display: inline-flex; align-items: center; gap: 6px; margin-left: 8px; padding-left: 14px; border-left: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+.nav-logout { display: inline-flex; align-items: center; gap: 5px; padding: 8px 9px; color: var(--soft); background: transparent; border: 0; border-radius: 8px; font-size: 12px; }
+.nav-logout:hover { color: var(--danger); background: var(--danger-soft); }
+
 .toast { position: fixed; right: 24px; bottom: 24px; z-index: 100; padding: 13px 18px; border-radius: 11px; color: white; background: #242d48; box-shadow: var(--shadow); font-size: 13px; animation: toast-in .2s ease-out; }
 @keyframes toast-in { from { transform: translateY(10px); opacity: 0; } }
 
@@ -338,6 +354,9 @@ button:disabled { cursor: not-allowed; opacity: .58; }
   .app-header-inner { height: 62px; }
   .app-header nav a { padding: 8px; font-size: 12px; }
   .app-header nav a span { display: none; }
+  .nav-user { display: none; }
+  .nav-logout span { display: none; }
+  .auth-card { padding: 24px; }
   .page-heading { flex-direction: column; }
   .page-heading .btn { width: 100%; }
   .stats-grid { gap: 10px; }

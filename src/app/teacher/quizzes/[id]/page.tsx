@@ -7,7 +7,8 @@ import { SharePanel } from "@/components/share-panel";
 import { StatusBadge } from "@/components/status-badge";
 import { getQuizAnalytics } from "@/lib/analytics";
 import { QUESTION_TYPE_LABELS } from "@/lib/domain";
-import { getQuiz, listSubmissions } from "@/lib/store";
+import { getTeacherQuiz, listSubmissions } from "@/lib/store";
+import { requireTeacher } from "@/lib/auth";
 import { formatDate } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "测验结果与学情统计" };
@@ -15,7 +16,8 @@ export const dynamic = "force-dynamic";
 
 export default async function QuizResultsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const quiz = await getQuiz(id);
+  const teacher = await requireTeacher(`/teacher/quizzes/${id}`);
+  const quiz = await getTeacherQuiz(id, teacher.id);
   if (!quiz) notFound();
   const submissions = await listSubmissions(id);
   const analytics = getQuizAnalytics(quiz, submissions);

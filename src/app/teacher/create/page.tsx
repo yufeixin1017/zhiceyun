@@ -3,10 +3,12 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { AppHeader } from "@/components/app-header";
 import { CreateQuizForm } from "./create-quiz-form";
+import { requireTeacher } from "@/lib/auth";
 
 export const metadata: Metadata = { title: "创建随堂测验" };
 
-export default function CreateQuizPage() {
+export default async function CreateQuizPage() {
+  await requireTeacher("/teacher/create");
   return (
     <>
       <AppHeader />

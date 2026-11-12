@@ -2,13 +2,9 @@ import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import type { Quiz, Submission } from "./domain";
 import { quizSchema, submissionSchema } from "./domain";
 import { getDb } from "./db";
-import { answers, questions, quizzes, submissions, teachers } from "./db/schema";
+import { answers, questions, quizzes, submissions } from "./db/schema";
 import { isAnswerCorrect } from "./scoring";
-
-// 在教师登录功能接入前，所有本地演示数据归属于一个不可登录的系统账号。
-// password_hash 是明确的禁用标记，不是任何可用密码的哈希。
-const LOCAL_TEACHER_ID = "00000000-0000-0000-0000-000000000001";
-const LOCAL_TEACHER_EMAIL = "local@zhiceyun.internal";
+import { ensureLocalTeacher, LOCAL_TEACHER_ID } from "./auth-accounts";
 
 type QuizRow = typeof quizzes.$inferSelect;
 type QuestionRow = typeof questions.$inferSelect;
@@ -41,19 +37,10 @@ function mapQuiz(row: QuizRow, questionRows: QuestionRow[]): Quiz {
   });
 }
 
-async function ensureLocalTeacher(): Promise<void> {
-  await getDb().insert(teachers).values({
-    id: LOCAL_TEACHER_ID,
-    name: "本地教师",
-    email: LOCAL_TEACHER_EMAIL,
-    passwordHash: "DISABLED_LOCAL_ACCOUNT",
-  }).onDuplicateKeyUpdate({ set: { id: LOCAL_TEACHER_ID } });
-}
-
-function quizInsertValues(quiz: Quiz): typeof quizzes.$inferInsert {
+function quizInsertValues(quiz: Quiz, teacherId: string): typeof quizzes.$inferInsert {
   return {
     id: quiz.id,
-    teacherId: LOCAL_TEACHER_ID,
+    teacherId,
     title: quiz.title,
     courseName: quiz.courseName,
     topic: quiz.topic,
@@ -90,8 +77,10 @@ async function getQuestions(quizIds: string[]): Promise<QuestionRow[]> {
     .orderBy(asc(questions.sortOrder));
 }
 
-export async function listQuizzes(): Promise<Quiz[]> {
-  const quizRows = await getDb().select().from(quizzes).orderBy(desc(quizzes.updatedAt));
+export async function listQuizzes(teacherId = LOCAL_TEACHER_ID): Promise<Quiz[]> {
+  const quizRows = await getDb().select().from(quizzes)
+    .where(eq(quizzes.teacherId, teacherId))
+    .orderBy(desc(quizzes.updatedAt));
   const questionRows = await getQuestions(quizRows.map((quiz) => quiz.id));
   return quizRows.map((quiz) => mapQuiz(
     quiz,
@@ -106,19 +95,30 @@ export async function getQuiz(id: string): Promise<Quiz | null> {
   return mapQuiz(quiz, questionRows);
 }
 
-export async function createQuiz(quiz: Quiz): Promise<Quiz> {
-  await ensureLocalTeacher();
+export async function getTeacherQuiz(id: string, teacherId: string): Promise<Quiz | null> {
+  const [quiz] = await getDb().select().from(quizzes)
+    .where(and(eq(quizzes.id, id), eq(quizzes.teacherId, teacherId)))
+    .limit(1);
+  if (!quiz) return null;
+  const questionRows = await getQuestions([id]);
+  return mapQuiz(quiz, questionRows);
+}
+
+export async function createQuiz(quiz: Quiz, teacherId = LOCAL_TEACHER_ID): Promise<Quiz> {
+  if (teacherId === LOCAL_TEACHER_ID) await ensureLocalTeacher();
   await getDb().transaction(async (transaction) => {
-    await transaction.insert(quizzes).values(quizInsertValues(quiz));
+    await transaction.insert(quizzes).values(quizInsertValues(quiz, teacherId));
     await transaction.insert(questions).values(questionInsertValues(quiz.id, quiz.questions));
   });
   return quiz;
 }
 
-export async function updateQuiz(id: string, update: Partial<Quiz>): Promise<Quiz | null> {
-  await ensureLocalTeacher();
+export async function updateQuiz(id: string, update: Partial<Quiz>, teacherId = LOCAL_TEACHER_ID): Promise<Quiz | null> {
+  if (teacherId === LOCAL_TEACHER_ID) await ensureLocalTeacher();
   return getDb().transaction(async (transaction) => {
-    const [existing] = await transaction.select().from(quizzes).where(eq(quizzes.id, id)).limit(1);
+    const [existing] = await transaction.select().from(quizzes)
+      .where(and(eq(quizzes.id, id), eq(quizzes.teacherId, teacherId)))
+      .limit(1);
     if (!existing) return null;
     const existingQuestions = await transaction.select().from(questions)
       .where(eq(questions.quizId, id))
@@ -142,7 +142,7 @@ export async function updateQuiz(id: string, update: Partial<Quiz>): Promise<Qui
       generationMode: updated.generationMode,
       updatedAt: new Date(updated.updatedAt),
       publishedAt: updated.publishedAt ? new Date(updated.publishedAt) : null,
-    }).where(eq(quizzes.id, id));
+    }).where(and(eq(quizzes.id, id), eq(quizzes.teacherId, teacherId)));
 
     if (update.questions) {
       await transaction.delete(questions).where(eq(questions.quizId, id));

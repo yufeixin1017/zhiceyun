@@ -3,7 +3,8 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
-import { getQuiz } from "@/lib/store";
+import { getTeacherQuiz } from "@/lib/store";
+import { requireTeacher } from "@/lib/auth";
 import { QuizEditor } from "./quiz-editor";
 
 export const metadata: Metadata = { title: "审核与编辑测验" };
@@ -11,7 +12,8 @@ export const dynamic = "force-dynamic";
 
 export default async function EditQuizPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const quiz = await getQuiz(id);
+  const teacher = await requireTeacher(`/teacher/quizzes/${id}/edit`);
+  const quiz = await getTeacherQuiz(id, teacher.id);
   if (!quiz) notFound();
   if (quiz.status !== "draft") redirect(`/teacher/quizzes/${id}`);
   return (

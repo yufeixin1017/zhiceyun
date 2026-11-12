@@ -1,4 +1,5 @@
-import { getQuiz, listSubmissions } from "@/lib/store";
+import { getTeacherQuiz, listSubmissions } from "@/lib/store";
+import { getCurrentTeacher } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
@@ -9,8 +10,10 @@ function csvCell(value: string | number): string {
 }
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const teacher = await getCurrentTeacher();
+  if (!teacher) return new Response("请先登录教师账号", { status: 401 });
   const { id } = await params;
-  const quiz = await getQuiz(id);
+  const quiz = await getTeacherQuiz(id, teacher.id);
   if (!quiz) return new Response("测验不存在", { status: 404 });
   const submissions = await listSubmissions(id);
   const rows = [

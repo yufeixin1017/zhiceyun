@@ -5,7 +5,8 @@ import { notFound } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { QUESTION_TYPE_LABELS } from "@/lib/domain";
 import { gradeSubmission } from "@/lib/scoring";
-import { getQuiz, getSubmission } from "@/lib/store";
+import { getTeacherQuiz, getSubmission } from "@/lib/store";
+import { requireTeacher } from "@/lib/auth";
 import { formatDate, getAnswerLabel, getStudentAnswerLabel } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "学生逐题作答详情" };
@@ -15,7 +16,8 @@ export default async function StudentSubmissionPage({ params }: {
   params: Promise<{ id: string; submissionId: string }>;
 }) {
   const { id, submissionId } = await params;
-  const [quiz, submission] = await Promise.all([getQuiz(id), getSubmission(id, submissionId)]);
+  const teacher = await requireTeacher(`/teacher/quizzes/${id}/students/${submissionId}`);
+  const [quiz, submission] = await Promise.all([getTeacherQuiz(id, teacher.id), getSubmission(id, submissionId)]);
   if (!quiz || !submission) notFound();
   const grade = gradeSubmission(quiz.questions, submission.answers);
   const accuracy = Math.round((submission.correctCount / quiz.questions.length) * 100);
