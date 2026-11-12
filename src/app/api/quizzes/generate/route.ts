@@ -5,6 +5,7 @@ import { generateAiQuestions, isAiConfigured } from "@/lib/ai-generator";
 import { generateDemoQuestions } from "@/lib/demo-generator";
 import { generateQuizRequestSchema, quizSchema } from "@/lib/domain";
 import { createQuiz } from "@/lib/store";
+import { organizeQuestions } from "@/lib/question-order";
 
 export const runtime = "nodejs";
 export const maxDuration = 90;
@@ -16,7 +17,8 @@ export async function POST(request: Request) {
     if (mode === "ai" && !isAiConfigured()) {
       return NextResponse.json({ message: "尚未配置大模型 API，请使用演示模式或先配置 AI_API_KEY" }, { status: 400 });
     }
-    const questions = mode === "ai" ? await generateAiQuestions(input) : generateDemoQuestions(input);
+    const generatedQuestions = mode === "ai" ? await generateAiQuestions(input) : generateDemoQuestions(input);
+    const questions = organizeQuestions(generatedQuestions);
     const now = new Date().toISOString();
     const quiz = quizSchema.parse({
       id: randomUUID(),
