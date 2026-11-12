@@ -36,7 +36,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ quiz }, { status: 201 });
   } catch (error) {
     if (error instanceof ZodError) {
-      return NextResponse.json({ message: "生成的题目未通过校验，请调整要求后重试", issues: error.issues }, { status: 422 });
+      const firstIssue = error.issues[0];
+      const location = firstIssue?.path.length ? `（位置：${firstIssue.path.join(".")}）` : "";
+      return NextResponse.json({
+        message: `模型返回内容未通过校验${location}：${firstIssue?.message ?? "字段格式不正确"}。请重试或调整题型。`,
+        issues: error.issues,
+      }, { status: 422 });
     }
     return NextResponse.json(
       { message: error instanceof Error ? error.message : "生成失败，请稍后重试" },
