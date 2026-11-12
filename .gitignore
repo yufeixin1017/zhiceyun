@@ -15,6 +15,7 @@ data/*.tmp
 .env.local
 .env.*.local
 *.log
+*.tsbuildinfo
 
 # system files
 .DS_Store
