@@ -4,10 +4,11 @@
   "private": true,
   "description": "智测云——面向高校课堂的 AI 随堂测验生成与自动评阅平台",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "node scripts/next.mjs dev --webpack",
+    "build": "node scripts/next.mjs build --webpack",
+    "start": "node scripts/next.mjs start",
     "test": "tsc -p tsconfig.test.json && node --test .test-dist/lib/*.test.js",
+    "test:smoke": "node scripts/smoke-test.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
