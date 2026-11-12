@@ -13,9 +13,11 @@ describe("password and token security", () => {
   });
 
   it("validates password strength", () => {
-    assert.equal(getPasswordError("short1"), "密码长度应为 10–128 位");
+    assert.equal(getPasswordError("short1"), "密码至少需要 8 位");
     assert.equal(getPasswordError("onlyletters"), "密码需同时包含字母和数字");
+    assert.equal(getPasswordError("Teach123"), null);
     assert.equal(getPasswordError("Classroom2026"), null);
+    assert.equal(getPasswordError("a".repeat(129)), "密码过长");
   });
 
   it("hashes session tokens deterministically without exposing the token", () => {

@@ -16,7 +16,8 @@ function deriveKey(password: string, salt: Buffer, keyLength: number, options: S
 }
 
 export function getPasswordError(password: string): string | null {
-  if (password.length < 10 || password.length > 128) return "密码长度应为 10–128 位";
+  if (password.length < 8) return "密码至少需要 8 位";
+  if (password.length > 128) return "密码过长";
   if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) return "密码需同时包含字母和数字";
   return null;
 }
