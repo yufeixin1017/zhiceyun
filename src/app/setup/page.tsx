@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "初始化教师账号" };
 export const dynamic = "force-dynamic";
 
 export default async function SetupPage() {
-  if (await hasInitializedTeacher()) redirect("/login");
+  if (await hasInitializedTeacher()) redirect("/register");
   if (await getCurrentTeacher()) redirect("/teacher");
-  return <AuthForm mode="setup" />;
+  return <AuthForm mode="register" />;
 }

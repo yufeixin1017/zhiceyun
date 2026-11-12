@@ -138,8 +138,20 @@ const correctLogin = await request("/api/auth/login", {
 });
 assert.equal(correctLogin.response.status, 200);
 
+const registrationPhone = `137${marker}`;
+const registered = await request("/api/auth/register", {
+  method: "POST",
+  body: JSON.stringify({ name: "新注册教师", phone: registrationPhone, password: credentials.password }),
+});
+assert.equal(registered.response.status, 201, JSON.stringify(registered.body));
+assert.equal(registered.body.teacher.phone, registrationPhone);
+const newTeacherDashboard = await request("/teacher");
+assert.equal(newTeacherDashboard.response.status, 200);
+assert.equal(newTeacherDashboard.body.includes(quiz.id), false, "新注册教师不应看到其他教师的测验");
+
 console.log("✓ 未登录教师页面与 API 已被拦截");
 console.log("✓ 教师初始化、登录、退出和错误密码校验正常");
+console.log("✓ 新教师可注册并拥有独立工作台");
 console.log("✓ 创建演示测验并完成 100 分校验");
 console.log("✓ 学生不带 Cookie 仍可作答，且页面不包含答案解析");
 console.log("✓ 发布、满分评分、零分评分均正确");

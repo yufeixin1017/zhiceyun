@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { eq, notLike } from "drizzle-orm";
 import { getDb } from "./db";
 import { teachers } from "./db/schema";
@@ -53,6 +54,36 @@ export async function createFirstTeacher(input: {
   } catch (error) {
     if (error instanceof Error && "code" in error && (error as Error & { code?: string }).code === "ER_DUP_ENTRY") {
       throw new Error("该手机号已被使用，请更换手机号");
+    }
+    throw error;
+  }
+  return teacher;
+}
+
+export async function registerTeacher(input: {
+  name: string;
+  phone: string;
+  password: string;
+}): Promise<Teacher> {
+  if (!(await hasInitializedTeacher())) return createFirstTeacher(input);
+  const phoneError = getPhoneError(input.phone);
+  if (phoneError) throw new Error(phoneError);
+  const passwordError = getPasswordError(input.password);
+  if (passwordError) throw new Error(passwordError);
+
+  const teacher: Teacher = {
+    id: randomUUID(),
+    name: input.name.trim(),
+    phone: normalizePhone(input.phone),
+  };
+  try {
+    await getDb().insert(teachers).values({
+      ...teacher,
+      passwordHash: await hashPassword(input.password),
+    });
+  } catch (error) {
+    if (error instanceof Error && "code" in error && (error as Error & { code?: string }).code === "ER_DUP_ENTRY") {
+      throw new Error("该手机号已注册，请直接登录或更换手机号");
     }
     throw error;
   }

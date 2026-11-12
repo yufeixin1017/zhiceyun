@@ -5,12 +5,11 @@ import Link from "next/link";
 import { ArrowRight, LockKeyhole, Phone, UserRound } from "lucide-react";
 import { Logo } from "./logo";
 
-export function AuthForm({ mode, nextPath = "/teacher", showSetupLink = false }: {
-  mode: "login" | "setup";
+export function AuthForm({ mode, nextPath = "/teacher" }: {
+  mode: "login" | "register";
   nextPath?: string;
-  showSetupLink?: boolean;
 }) {
-  const isSetup = mode === "setup";
+  const isSetup = mode === "register";
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -48,7 +47,7 @@ export function AuthForm({ mode, nextPath = "/teacher", showSetupLink = false }:
         <div className="auth-heading">
           <span className="eyebrow"><LockKeyhole size={14} />教师专属工作台</span>
           <h1>{isSetup ? "创建教师账号" : "欢迎回来"}</h1>
-          <p>{isSetup ? "首次使用，请初始化你的教师账号。已有测验会自动归属于该账号。" : "登录后创建测验、查看学生作答与班级学情。"}</p>
+          <p>{isSetup ? "使用手机号注册。首次初始化会保留已有测验，后续注册将拥有独立工作台。" : "登录后创建测验、查看学生作答与班级学情。"}</p>
         </div>
         {error && <div className="error-box" role="alert">{error}</div>}
         <form onSubmit={submit}>
@@ -59,7 +58,7 @@ export function AuthForm({ mode, nextPath = "/teacher", showSetupLink = false }:
           <button className="btn btn-primary btn-lg btn-block" type="submit" disabled={loading}>{loading ? <span className="loading-spinner" /> : <ArrowRight size={17} />}{loading ? "请稍候…" : isSetup ? "创建账号并进入工作台" : "登录并进入工作台"}</button>
         </form>
         <div className="auth-footer">
-          {isSetup ? <span>已有账号？<Link href="/login">直接登录</Link></span> : showSetupLink ? <span>首次使用？<Link href="/setup">创建教师账号</Link></span> : <span>学生无需登录，可通过教师分享的链接作答</span>}
+          {isSetup ? <span>已有账号？<Link href="/login">直接登录</Link></span> : <span>没有账号？<Link href="/register">立即注册</Link></span>}
         </div>
       </section>
       <p className="auth-note">教师数据与学生成绩仅用于课堂教学演示</p>
