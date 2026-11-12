@@ -34,7 +34,7 @@
 - Next.js 16 App Router + React 19 + TypeScript
 - Zod：请求与 AI 输出的运行时结构校验
 - Node.js Route Handlers：生成、发布、评分、统计与导出 API
-- 本地 JSON 原子写入：适合单机演示的轻量持久化
+- MySQL 8.x＋Drizzle ORM＋mysql2：事务化持久化与唯一约束
 - Node.js 原生测试框架：无需额外测试运行器
 - Lucide 图标、原生响应式 CSS、QRCodeSVG
 
@@ -44,6 +44,7 @@
 
 - Node.js 20.9 或更高版本，推荐 Node.js 22/24；
 - pnpm 9 或更高版本；
+- MySQL 8.x（本地默认数据库名为 `zhiceyun`）；
 - 可选：一个 OpenAI 兼容的 Chat Completions API。
 
 ### 2. 安装与启动
@@ -56,6 +57,7 @@
 - 首次安装依赖时需要联网；
 - 使用时保持启动器打开的终端窗口运行，按 `Control + C` 停止；
 - 如果服务已经运行，再次双击只会打开浏览器，不会重复启动；
+- MySQL 服务需要已启动，并已执行下方初始化 SQL；
 - PATH 仅在启动器进程内临时设置，不修改系统环境变量。
 
 #### 终端启动
@@ -63,6 +65,24 @@
 ```bash
 pnpm install
 cp .env.example .env.local
+```
+
+首次运行先启动 MySQL 并初始化表结构：
+
+```bash
+mysql --protocol=TCP -h 127.0.0.1 -P 3306 -u root \
+  < database/migrations/001_initial_schema.sql
+```
+
+在 `.env.local` 中配置实际数据库账号（密码中的特殊字符需要 URL 编码）：
+
+```dotenv
+DATABASE_URL=mysql://zhiceyun:数据库密码@127.0.0.1:3306/zhiceyun
+```
+
+然后启动：
+
+```bash
 pnpm dev
 ```
 
@@ -117,11 +137,13 @@ pnpm test:smoke
 
 ## 数据与复现说明
 
-- 运行数据保存在 `data/database.json`，首次写入时自动创建；
-- 文件使用临时文件＋重命名进行原子替换；
-- 数据文件、环境密钥、构建产物均被 `.gitignore` 排除；
-- 当前版本未实现登录与多租户权限，适合本地比赛演示，不应直接作为公开生产系统部署；
-- 演示时请使用虚拟学生姓名与学号，不收集真实敏感信息。
+- 运行数据保存在 MySQL 的 `zhiceyun` 数据库中；
+- 初始化脚本位于 `database/migrations/001_initial_schema.sql`；
+- 原 `data/database.json` 仅作为早期演示数据备份，不再参与运行；
+- 环境密钥、本地数据文件和构建产物均被 `.gitignore` 排除；
+- 当前版本未实现教师登录与多租户权限，公开访问前仍需完成教师认证；
+- 演示时请使用虚拟学生姓名与学号，不收集真实敏感信息；
+- 数据库健康检查：`GET /api/health`。
 
 ## 目录结构
 
@@ -139,7 +161,10 @@ src/
     ├── scoring.ts              # 服务端自动评分内核
     ├── analytics.ts            # 班级与逐题统计
     ├── public-quiz.ts          # 学生端答案字段隔离
-    └── store.ts                # JSON 持久化
+    ├── db/                     # MySQL 连接池与 Drizzle 表映射
+    └── store.ts                # 事务化 MySQL 持久化
+database/
+└── migrations/               # 可复现的 MySQL 初始化 SQL
 scripts/
 ├── next.mjs                    # 原生／WASM 编译兼容入口
 └── smoke-test.mjs              # 完整业务链路验证
