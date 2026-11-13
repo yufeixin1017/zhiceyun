@@ -444,3 +444,24 @@ Docker 只是可复现的部署方式，并非必需；服务器已有 MySQL 与
 - 本机无法验证 systemd 与隧道，已在文档中标注需在服务器实测。
 
 ### 建议录屏方式
+
+---
+
+## 迭代 20：处理服务器开机等待网络
+
+### 用户反馈
+
+> “服务器启动界面报错 job systemd-network-wait-online.service/start running”
+
+这是 Ubuntu 在等待网络就绪，默认最多 120 秒后继续；原 systemd 单元还显式依赖 `network-online.target`，会加剧等待。
+
+### AI 修改
+
+- `deploy/zhiceyun.service` 去掉 `Wants=network-online.target`，改为 `After=network.target mysql.service` + `Wants=mysql.service`；
+- 部署文档新增“开机卡在 systemd-networkd-wait-online”章节：GRUB 临时屏蔽参数、drop-in 限时 15 秒、直接 mask，以及依赖排查命令。
+
+### 说明
+
+该问题属于服务器系统服务行为，需在 Ubuntu 上按文档处理；本机无法复现与验证。
+
+### 建议录屏方式

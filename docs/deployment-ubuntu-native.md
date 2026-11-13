@@ -247,3 +247,56 @@ sudo systemctl restart zhiceyun
 
 **端口冲突？**
 修改 `deploy/zhiceyun.service` 中的 `--port`、隧道配置里的 `service` 地址，以及 `PUBLIC_BASE_URL` 的端口（若对外暴露端口）。
+
+## 12. 开机卡在 systemd-networkd-wait-online
+
+开机界面出现类似：
+
+```text
+A start job is running for Wait for Network to be Configured (systemd-networkd-wait-online.service)
+```
+
+这不是智测云报错，而是 Ubuntu 在等待网络“完全就绪”。默认最多等 120 秒，之后会自动继续启动，只是开机变慢。
+
+### 临时进入系统
+
+如果一直卡住，可在 GRUB 菜单按 `e`，在内核启动参数末尾追加：
+
+```text
+systemd.mask=systemd-networkd-wait-online.service
+```
+
+按 `Ctrl+X` 启动，本次开机就会跳过该等待。进入系统后按下面步骤永久修复。
+
+### 永久修复（限时等待）
+
+```bash
+sudo mkdir -p /etc/systemd/system/systemd-networkd-wait-online.service.d
+sudo tee /etc/systemd/system/systemd-networkd-wait-online.service.d/override.conf >/dev/null <<'EOF'
+[Service]
+ExecStart=
+ExecStart=/lib/systemd/systemd-networkd-wait-online --timeout=15
+EOF
+sudo systemctl daemon-reload
+```
+
+### 或者直接屏蔽
+
+使用 NetworkManager 管理网络、且不需要“开机瞬间就有网”时，可以直接屏蔽：
+
+```bash
+sudo systemctl disable --now systemd-networkd-wait-online.service
+sudo systemctl mask systemd-networkd-wait-online.service
+```
+
+cloudflared 这类服务连不上网时会自动重试，不会因为跳过等待而永久失效。
+
+### 检查是谁在等待
+
+```bash
+systemctl status systemd-networkd-wait-online.service --no-pager
+systemctl list-jobs
+systemctl list-dependencies --reverse systemd-networkd-wait-online.service
+```
+
+智测云的 systemd 单元已改为只依赖 `network.target` 与 `mysql.service`，不会主动触发这项等待。如果仍然卡住，原因来自系统本身或 cloudflared 服务，按上面的方法处理。

@@ -1,7 +1,8 @@
 [Unit]
 Description=Zhiceyun classroom quiz (AI quiz generation and grading)
-After=network-online.target mysql.service
-Wants=network-online.target
+# 只依赖本机 MySQL，不需要等待外网就绪，避免开机卡在 network-online 等待。
+After=network.target mysql.service
+Wants=mysql.service
 
 [Service]
 Type=simple
