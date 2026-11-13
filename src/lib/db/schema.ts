@@ -49,7 +49,6 @@ export const quizzes = mysqlTable("quizzes", {
   difficulty: varchar("difficulty", { length: 20 }).$type<Quiz["difficulty"]>().notNull(),
   durationMinutes: smallint("duration_minutes", { unsigned: true }).notNull(),
   status: varchar("status", { length: 20 }).$type<Quiz["status"]>().notNull().default("draft"),
-  generationMode: varchar("generation_mode", { length: 10 }).$type<Quiz["generationMode"]>().notNull(),
   createdAt: datetime("created_at", { mode: "date", fsp: 3 }).notNull().default(sql`CURRENT_TIMESTAMP(3)`),
   updatedAt: datetime("updated_at", { mode: "date", fsp: 3 }).notNull().default(sql`CURRENT_TIMESTAMP(3)`),
   publishedAt: datetime("published_at", { mode: "date", fsp: 3 }),

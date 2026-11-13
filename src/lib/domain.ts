@@ -61,7 +61,6 @@ export const quizSchema = z.object({
   difficulty: difficultySchema,
   durationMinutes: z.number().int().min(1).max(120),
   status: quizStatusSchema,
-  generationMode: z.enum(["ai", "demo"]),
   questions: z.array(questionSchema).min(1).max(20),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -77,7 +76,6 @@ export const generateQuizRequestSchema = z
     questionTypes: z.array(questionTypeSchema).min(1, "请至少选择一种题型"),
     difficulty: difficultySchema,
     durationMinutes: z.number().int().min(1).max(120),
-    mode: z.enum(["ai", "demo"]).optional(),
   })
   .superRefine((request, context) => {
     if (new Set(request.questionTypes).size !== request.questionTypes.length) {

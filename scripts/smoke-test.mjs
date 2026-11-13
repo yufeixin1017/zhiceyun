@@ -1,4 +1,8 @@
 import assert from "node:assert/strict";
+import { randomUUID } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import mysql from "mysql2/promise";
 
 const baseUrl = process.env.SMOKE_BASE_URL || "http://127.0.0.1:3000";
 const marker = Date.now().toString().slice(-8);
@@ -6,6 +10,7 @@ const credentials = {
   phone: process.env.TEACHER_TEST_PHONE || "13800000000",
   password: process.env.TEACHER_TEST_PASSWORD || "Classroom2026",
 };
+
 let cookie = "";
 
 async function request(path, options = {}) {
@@ -25,20 +30,89 @@ async function request(path, options = {}) {
   return { response, body };
 }
 
-const generationPayload = {
-  courseName: "机器学习导论",
-  topic: "过拟合与模型泛化",
-  sourceContent: "本节课介绍过拟合与模型泛化。过拟合是指模型在训练集表现良好但在新数据上表现较差。正则化、数据增强、增加有效训练数据和早停可以缓解过拟合。验证集用于模型选择，测试集用于最终评估。",
-  questionCount: 6,
-  questionTypes: ["single_choice", "multiple_choice", "true_false", "fill_blank"],
-  difficulty: "medium",
-  durationMinutes: 10,
-  mode: "demo",
-};
+async function resolveDatabaseUrl() {
+  if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
+  const envPath = path.resolve(".env.local");
+  try {
+    const content = await readFile(envPath, "utf8");
+    const line = content.split(/\r?\n/).find((item) => item.trim().startsWith("DATABASE_URL="));
+    if (line) return line.slice(line.indexOf("=") + 1).trim().replace(/^["']|["']$/g, "");
+  } catch {
+    // Fall through to the default below.
+  }
+  return "mysql://root@127.0.0.1:3306/zhiceyun";
+}
+
+// 直接写入固定测试数据，避免冒烟测试依赖真实大模型与网络调用。
+async function seedDraftQuiz(teacherId) {
+  const connection = await mysql.createConnection(await resolveDatabaseUrl());
+  try {
+    const quizId = randomUUID();
+    const now = new Date();
+    const questions = Array.from({ length: 6 }, (_, index) => ({
+      id: randomUUID(),
+      quizId,
+      sortOrder: index,
+      type: "single_choice",
+      stem: `冒烟测试第 ${index + 1} 题：以下哪个选项是本题的正确答案？`,
+      options: [
+        { id: "A", text: "正确选项" },
+        { id: "B", text: "错误选项一" },
+        { id: "C", text: "错误选项二" },
+        { id: "D", text: "错误选项三" },
+      ],
+      answer: ["A"],
+      explanation: "固定测试数据，用于验证评分与统计链路。",
+      knowledgePoint: "冒烟测试知识点",
+      score: index < 4 ? 17 : 16,
+    }));
+    await connection.beginTransaction();
+    await connection.query(
+      `INSERT INTO quizzes
+        (id, teacher_id, title, course_name, topic, source_content, difficulty, duration_minutes, status, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?, ?)`,
+      [
+        quizId,
+        teacherId,
+        `冒烟测试测验 ${marker}`,
+        "冒烟测试课程",
+        "冒烟测试主题",
+        "这是用于验证完整业务流程的固定测试内容，不包含真实学生信息。",
+        "medium",
+        10,
+        now,
+        now,
+      ],
+    );
+    for (const question of questions) {
+      await connection.query(
+        `INSERT INTO questions
+          (id, quiz_id, sort_order, type, stem, options, answer, explanation, knowledge_point, score)
+         VALUES (?, ?, ?, ?, ?, CAST(? AS JSON), CAST(? AS JSON), ?, ?, ?)`,
+        [
+          question.id,
+          quizId,
+          question.sortOrder,
+          question.type,
+          question.stem,
+          JSON.stringify(question.options),
+          JSON.stringify(question.answer),
+          question.explanation,
+          question.knowledgePoint,
+          question.score,
+        ],
+      );
+    }
+    await connection.commit();
+    return quizId;
+  } finally {
+    await connection.end();
+  }
+}
 
 const unauthorized = await request("/api/quizzes/generate", {
   method: "POST",
-  body: JSON.stringify(generationPayload),
+  body: JSON.stringify({}),
 });
 assert.equal(unauthorized.response.status, 401, "未登录时教师 API 必须返回 401");
 const teacherPage = await request("/teacher", { redirect: "manual" });
@@ -65,12 +139,10 @@ session = await request("/api/auth/session");
 assert.equal(session.response.status, 200);
 assert.equal(session.body.teacher.phone, credentials.phone);
 
-const generation = await request("/api/quizzes/generate", {
-  method: "POST",
-  body: JSON.stringify(generationPayload),
-});
-assert.equal(generation.response.status, 201, JSON.stringify(generation.body));
-const quiz = generation.body.quiz;
+const quizId = await seedDraftQuiz(session.body.teacher.id);
+const quizResponse = await request(`/api/quizzes/${quizId}`);
+assert.equal(quizResponse.response.status, 200, JSON.stringify(quizResponse.body));
+const quiz = quizResponse.body.quiz;
 assert.equal(quiz.questions.length, 6);
 assert.equal(quiz.questions.reduce((sum, question) => sum + question.score, 0), 100);
 
@@ -100,8 +172,6 @@ const duplicate = await request(`/api/public/quizzes/${quiz.id}/submissions`, {
 assert.equal(duplicate.response.status, 409);
 
 const wrongAnswers = Object.fromEntries(quiz.questions.map((question) => {
-  if (question.type === "fill_blank") return [question.id, ["明确的错误答案"]];
-  if (question.type === "true_false") return [question.id, [question.answer[0] === "true" ? "false" : "true"]];
   const wrong = question.options.find((option) => !question.answer.includes(option.id));
   return [question.id, [wrong.id]];
 }));
@@ -120,6 +190,8 @@ const dashboard = await request(`/teacher/quizzes/${quiz.id}`);
 assert.equal(dashboard.response.status, 200);
 assert.equal(dashboard.body.includes("满分演示"), true);
 assert.equal(dashboard.body.includes("待巩固演示"), true);
+const questionPage = await request(`/teacher/quizzes/${quiz.id}/questions/${quiz.questions[0].id}`);
+assert.equal(questionPage.response.status, 200);
 const exported = await request(`/api/quizzes/${quiz.id}/export`);
 assert.equal(exported.response.status, 200);
 assert.equal(exported.body.split("\r\n").length, 3);
@@ -152,10 +224,10 @@ assert.equal(newTeacherDashboard.body.includes(quiz.id), false, "新注册教师
 console.log("✓ 未登录教师页面与 API 已被拦截");
 console.log("✓ 教师初始化、登录、退出和错误密码校验正常");
 console.log("✓ 新教师可注册并拥有独立工作台");
-console.log("✓ 创建演示测验并完成 100 分校验");
+console.log("✓ 固定测试测验创建成功，满分 100 分");
 console.log("✓ 学生不带 Cookie 仍可作答，且页面不包含答案解析");
 console.log("✓ 发布、满分评分、零分评分均正确");
 console.log("✓ 重复学号提交已被拦截");
-console.log("✓ 成绩页、班级统计和 CSV 导出可访问");
+console.log("✓ 成绩页、班级统计、题目分析页和 CSV 导出可访问");
 console.log(`\n教师结果页：${baseUrl}/teacher/quizzes/${quiz.id}`);
 console.log(`学生作答页：${baseUrl}/quiz/${quiz.id}`);

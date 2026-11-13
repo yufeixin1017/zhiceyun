@@ -50,7 +50,7 @@ export default async function TeacherDashboard() {
                 <article className="card quiz-row" key={quiz.id}>
                   <div className="quiz-row-icon"><FileText size={21} /></div>
                   <div className="quiz-row-main">
-                    <div className="quiz-row-title"><h3>{quiz.title}</h3><StatusBadge status={quiz.status} />{quiz.generationMode === "demo" && <span className="badge badge-ai">演示生成</span>}</div>
+                    <div className="quiz-row-title"><h3>{quiz.title}</h3><StatusBadge status={quiz.status} /></div>
                     <div className="quiz-row-meta"><span><BookOpenCheck size={13} />{quiz.courseName}</span><span><FileText size={13} />{quiz.questions.length} 题</span><span><UsersRound size={13} />{submissions.length} 份作答</span><span><Clock3 size={13} />{formatDate(quiz.updatedAt)}</span></div>
                   </div>
                   <div className="quiz-row-actions">

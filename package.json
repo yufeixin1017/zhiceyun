@@ -7,7 +7,7 @@
     "dev": "node scripts/next.mjs dev --webpack",
     "build": "node scripts/next.mjs build --webpack",
     "start": "node scripts/next.mjs start",
-    "test": "tsc -p tsconfig.test.json && node --test .test-dist/lib/*.test.js",
+    "test": "node -e \"require('node:fs').rmSync('.test-dist',{recursive:true,force:true})\" && tsc -p tsconfig.test.json && node --test .test-dist/lib/*.test.js",
     "test:smoke": "node scripts/smoke-test.mjs",
     "typecheck": "tsc --noEmit"
   },

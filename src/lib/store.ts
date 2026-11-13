@@ -20,7 +20,6 @@ function mapQuiz(row: QuizRow, questionRows: QuestionRow[]): Quiz {
     difficulty: row.difficulty,
     durationMinutes: row.durationMinutes,
     status: row.status,
-    generationMode: row.generationMode,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
     publishedAt: row.publishedAt?.toISOString(),
@@ -48,7 +47,6 @@ function quizInsertValues(quiz: Quiz, teacherId: string): typeof quizzes.$inferI
     difficulty: quiz.difficulty,
     durationMinutes: quiz.durationMinutes,
     status: quiz.status,
-    generationMode: quiz.generationMode,
     createdAt: new Date(quiz.createdAt),
     updatedAt: new Date(quiz.updatedAt),
     publishedAt: quiz.publishedAt ? new Date(quiz.publishedAt) : null,
@@ -139,7 +137,6 @@ export async function updateQuiz(id: string, update: Partial<Quiz>, teacherId = 
       difficulty: updated.difficulty,
       durationMinutes: updated.durationMinutes,
       status: updated.status,
-      generationMode: updated.generationMode,
       updatedAt: new Date(updated.updatedAt),
       publishedAt: updated.publishedAt ? new Date(updated.publishedAt) : null,
     }).where(and(eq(quizzes.id, id), eq(quizzes.teacherId, teacherId)));

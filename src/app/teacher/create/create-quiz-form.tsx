@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BookOpen, CheckSquare2, CircleDot, FileInput, Info, ListChecks, Sparkles, WandSparkles } from "lucide-react";
-import { EMPTY_GENERATION_REQUEST } from "@/lib/demo-data";
+import { EMPTY_GENERATION_REQUEST } from "@/lib/quiz-form-defaults";
 import { DIFFICULTY_LABELS, QUESTION_TYPE_LABELS } from "@/lib/domain";
 import type { GenerateQuizRequest, QuestionType, Quiz } from "@/lib/domain";
 
@@ -24,7 +24,6 @@ export function CreateQuizForm() {
   useEffect(() => {
     fetch("/api/config").then((response) => response.json()).then((config: { aiConfigured: boolean }) => {
       setAiConfigured(config.aiConfigured);
-      if (config.aiConfigured) setForm((current) => ({ ...current, mode: "ai" }));
     }).catch(() => setAiConfigured(false));
   }, []);
 
@@ -97,12 +96,11 @@ export function CreateQuizForm() {
           <div className="summary-row"><span>难度</span><strong>{DIFFICULTY_LABELS[form.difficulty]}</strong></div>
           <div className="summary-row"><span>题型</span><strong>{selectedTypes}</strong></div>
           <div style={{ marginTop: 20 }}>
-            {aiConfigured && <div className="segmented" style={{ display: "flex", marginBottom: 12 }}><button type="button" className={form.mode === "ai" ? "active" : ""} style={{ flex: 1 }} onClick={() => update("mode", "ai")}>AI 生成</button><button type="button" className={form.mode === "demo" ? "active" : ""} style={{ flex: 1 }} onClick={() => update("mode", "demo")}>演示生成</button></div>}
-            <button className="btn btn-primary btn-lg btn-block" disabled={loading || !form.sourceContent.trim()} type="submit">{loading ? <span className="loading-spinner" /> : <WandSparkles size={18} />}{loading ? "正在生成并校验…" : form.mode === "ai" ? "AI 生成测验" : "生成演示测验"}</button>
+            <button className="btn btn-primary btn-lg btn-block" disabled={loading || !form.sourceContent.trim() || !aiConfigured} type="submit">{loading ? <span className="loading-spinner" /> : <WandSparkles size={18} />}{loading ? "正在生成并校验…" : "AI 生成测验"}</button>
           </div>
           <p className="help-text" style={{ textAlign: "center" }}>生成后仍可逐题修改，审核确认再发布</p>
         </div>
-        <div className={`notice ${form.mode === "demo" ? "warning" : ""}`}><Info size={16} /><div>{form.mode === "ai" ? "已连接大模型。生成结果会经过题量、题型、选项、答案和分值校验，失败时不会静默替换为演示内容。" : "当前使用明确标注的演示生成模式，用于验证产品流程。配置 OpenAI 兼容的大模型 API 后，可依据真实课堂内容智能出题。"}</div></div>
+        <div className={`notice ${aiConfigured ? "" : "warning"}`}><Info size={16} /><div>{aiConfigured ? "已连接大模型。生成结果会经过题量、题型、选项、答案和分值校验，失败时会明确报错，不会静默替换内容。" : "尚未配置大模型 API，暂时无法生成测验。请在 .env.local 中配置 AI_API_KEY、AI_BASE_URL 和 AI_MODEL，并重新启动服务。"}</div></div>
         <div className="notice"><BookOpen size={16} /><div>仅支持选择、判断和简短填空题，不生成简答、证明或需要上传图片的题目。</div></div>
         <div className="notice"><Sparkles size={16} /><div>教师审核是必要环节。请重点核对答案、解析和题目是否超纲。</div></div>
       </aside>

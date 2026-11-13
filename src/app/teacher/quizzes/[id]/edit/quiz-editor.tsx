@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, ChevronDown, CirclePlus, Info, Plus, Save, Send, Trash2, X } from "lucide-react";
+import { Check, ChevronDown, CirclePlus, Plus, Save, Send, Trash2, X } from "lucide-react";
 import { QUESTION_TYPE_LABELS } from "@/lib/domain";
 import type { Question, QuestionType, Quiz } from "@/lib/domain";
 import { allocateScores } from "@/lib/scoring";
@@ -91,10 +91,9 @@ export function QuizEditor({ initialQuiz }: { initialQuiz: Quiz }) {
       {error && <div className="error-box" role="alert">{error}</div>}
       {message && <div className="success-box" role="status">{message}</div>}
       <div className="card editor-toolbar">
-        <div className="editor-toolbar-info"><strong>{quiz.questions.length} 道题 · 总分 {totalScore} 分</strong><br /><span>{quiz.generationMode === "demo" ? "演示生成" : "AI 生成"} · 发布后题目不可修改</span></div>
+        <div className="editor-toolbar-info"><strong>{quiz.questions.length} 道题 · 总分 {totalScore} 分</strong><br /><span>AI 生成 · 发布后题目不可修改</span></div>
         <div className="editor-toolbar-actions"><button className="btn btn-secondary" onClick={save} disabled={saving || publishing}>{saving ? <span className="loading-spinner" /> : <Save size={16} />}保存草稿</button><button className="btn btn-primary" onClick={publish} disabled={saving || publishing || totalScore !== 100}>{publishing ? <span className="loading-spinner" /> : <Send size={16} />}确认并发布</button></div>
       </div>
-      {quiz.generationMode === "demo" && <div className="notice warning" style={{ marginBottom: 16 }}><Info size={16} /><div>本测验由演示生成器创建。它可以用于体验完整流程，但不应把演示题描述为大模型实时生成结果。</div></div>}
       <section className="card editor-meta">
         <div className="editor-meta-grid"><div className="field" style={{ margin: 0 }}><label htmlFor="quiz-title">测验标题</label><input id="quiz-title" className="input" value={quiz.title} onChange={(event) => setQuiz({ ...quiz, title: event.target.value })} maxLength={120} /></div><div className="field" style={{ margin: 0 }}><label htmlFor="quiz-duration">建议用时（分钟）</label><input id="quiz-duration" className="input" type="number" min={1} max={120} value={quiz.durationMinutes} onChange={(event) => setQuiz({ ...quiz, durationMinutes: Number(event.target.value) })} /></div></div>
       </section>

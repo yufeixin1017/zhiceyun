@@ -2,11 +2,10 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { generateAiQuestions, isAiConfigured } from "@/lib/ai-generator";
-import { generateDemoQuestions } from "@/lib/demo-generator";
 import { generateQuizRequestSchema, quizSchema } from "@/lib/domain";
 import { createQuiz } from "@/lib/store";
-import { organizeQuestions } from "@/lib/question-order";
 import { getCurrentTeacher } from "@/lib/auth";
+import { organizeQuestions } from "@/lib/question-order";
 
 export const runtime = "nodejs";
 export const maxDuration = 90;
@@ -14,14 +13,12 @@ export const maxDuration = 90;
 export async function POST(request: Request) {
   const teacher = await getCurrentTeacher();
   if (!teacher) return NextResponse.json({ message: "请先登录教师账号" }, { status: 401 });
+  if (!isAiConfigured()) {
+    return NextResponse.json({ message: "尚未配置大模型 API，请先配置 AI_API_KEY、AI_BASE_URL 和 AI_MODEL" }, { status: 400 });
+  }
   try {
     const input = generateQuizRequestSchema.parse(await request.json());
-    const mode = input.mode ?? (isAiConfigured() ? "ai" : "demo");
-    if (mode === "ai" && !isAiConfigured()) {
-      return NextResponse.json({ message: "尚未配置大模型 API，请使用演示模式或先配置 AI_API_KEY" }, { status: 400 });
-    }
-    const generatedQuestions = mode === "ai" ? await generateAiQuestions(input) : generateDemoQuestions(input);
-    const questions = organizeQuestions(generatedQuestions);
+    const questions = organizeQuestions(await generateAiQuestions(input));
     const now = new Date().toISOString();
     const quiz = quizSchema.parse({
       id: randomUUID(),
@@ -32,7 +29,6 @@ export async function POST(request: Request) {
       difficulty: input.difficulty,
       durationMinutes: input.durationMinutes,
       status: "draft",
-      generationMode: mode,
       questions,
       createdAt: now,
       updatedAt: now,

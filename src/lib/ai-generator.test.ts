@@ -2,10 +2,10 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { ZodError } from "zod";
 import { normalizeAiQuestions } from "./ai-generator";
-import { DEFAULT_GENERATION_REQUEST } from "./demo-data";
+import { TEST_GENERATION_REQUEST } from "./test-fixtures";
 
 const request = {
-  ...DEFAULT_GENERATION_REQUEST,
+  ...TEST_GENERATION_REQUEST,
   questionCount: 3,
   questionTypes: ["single_choice", "true_false", "fill_blank"] as const,
 };
