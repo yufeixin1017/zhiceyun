@@ -49,3 +49,5 @@ teachers → quizzes → questions
 ## 时间字段约定
 
 应用统一以 **UTC** 写入 `published_at`、`submitted_at` 等时间字段。手工执行 SQL 构造或校验数据时，请使用 `UTC_TIMESTAMP(3)` 而不是 `NOW()`，否则会因数据库会话时区与 UTC 的差异导致限时判断不正确。
+
+页面与 CSV 展示时统一使用 `Asia/Shanghai` 转换为北京时间，不依赖 Ubuntu 或 Mac 的系统时区设置。Navicat 中直接查看到的 UTC 时间比北京时间少 8 小时属于正常现象，不代表数据保存错误。

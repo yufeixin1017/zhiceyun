@@ -1,5 +1,6 @@
 import { getTeacherQuiz, listSubmissions } from "@/lib/store";
 import { getCurrentTeacher } from "@/lib/auth";
+import { formatDateTime } from "@/lib/utils";
 
 export const runtime = "nodejs";
 
@@ -18,7 +19,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const submissions = await listSubmissions(id);
   const rows = [
     ["姓名", "学号", "得分", "满分", "答对题数", "总题数", "提交状态", "提交时间"],
-    ...submissions.map((submission) => [submission.studentName, submission.studentNo ?? "", submission.score, submission.totalScore, submission.correctCount, quiz.questions.length, submission.isLate ? "超时" : "按时", submission.submittedAt]),
+    ...submissions.map((submission) => [submission.studentName, submission.studentNo ?? "", submission.score, submission.totalScore, submission.correctCount, quiz.questions.length, submission.isLate ? "超时" : "按时", formatDateTime(submission.submittedAt)]),
   ];
   const csv = `\uFEFF${rows.map((row) => row.map(csvCell).join(",")).join("\r\n")}`;
   return new Response(csv, {
