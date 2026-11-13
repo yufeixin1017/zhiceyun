@@ -93,6 +93,7 @@ export const submissionSchema = z.object({
   correctCount: z.number().int().nonnegative(),
   totalScore: z.number().int().positive(),
   submittedAt: z.string(),
+  isLate: z.boolean(),
 });
 
 export const submitAnswersSchema = z.object({

@@ -83,7 +83,7 @@ export function CreateQuizForm() {
           </div></div>
           <div className="form-grid">
             <div className="field"><label htmlFor="count">题目数量</label><select id="count" className="input" value={form.questionCount} onChange={(event) => update("questionCount", Number(event.target.value))}>{[3, 4, 5, 6, 7, 8, 9, 10].map((count) => <option key={count} value={count}>{count} 道题</option>)}</select></div>
-            <div className="field"><label htmlFor="duration">建议用时</label><select id="duration" className="input" value={form.durationMinutes} onChange={(event) => update("durationMinutes", Number(event.target.value))}>{[5, 10, 15, 20, 30].map((minutes) => <option key={minutes} value={minutes}>{minutes} 分钟</option>)}</select></div>
+            <div className="field"><label htmlFor="duration">答题限时</label><select id="duration" className="input" value={form.durationMinutes} onChange={(event) => update("durationMinutes", Number(event.target.value))}>{[5, 10, 15, 20, 30].map((minutes) => <option key={minutes} value={minutes}>{minutes} 分钟</option>)}</select></div>
           </div>
           <div className="field"><div className="field-label">测验难度</div><div className="segmented">{(Object.keys(DIFFICULTY_LABELS) as Array<keyof typeof DIFFICULTY_LABELS>).map((difficulty) => <button type="button" key={difficulty} className={form.difficulty === difficulty ? "active" : ""} onClick={() => update("difficulty", difficulty)}>{DIFFICULTY_LABELS[difficulty]}</button>)}</div></div>
         </section>
@@ -92,7 +92,7 @@ export function CreateQuizForm() {
         <div className="card summary-card">
           <h3>本次测验</h3>
           <div className="summary-row"><span>题目数量</span><strong>{form.questionCount} 题 · 100 分</strong></div>
-          <div className="summary-row"><span>建议用时</span><strong>{form.durationMinutes} 分钟</strong></div>
+          <div className="summary-row"><span>答题限时</span><strong>{form.durationMinutes} 分钟</strong></div>
           <div className="summary-row"><span>难度</span><strong>{DIFFICULTY_LABELS[form.difficulty]}</strong></div>
           <div className="summary-row"><span>题型</span><strong>{selectedTypes}</strong></div>
           <div style={{ marginTop: 20 }}>

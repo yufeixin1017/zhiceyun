@@ -25,6 +25,7 @@ function submission(id: string, name: string, answer: string[]): Submission {
     correctCount: 0,
     totalScore: 100,
     submittedAt: "2026-01-01T00:00:00.000Z",
+    isLate: false,
   };
 }
 

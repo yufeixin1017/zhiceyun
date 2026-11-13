@@ -4,6 +4,7 @@ import { ZodError } from "zod";
 import { submissionSchema, submitAnswersSchema } from "@/lib/domain";
 import { gradeSubmission } from "@/lib/scoring";
 import { createSubmission, getQuiz } from "@/lib/store";
+import { isLateSubmission } from "@/lib/quiz-deadline";
 
 export const runtime = "nodejs";
 
@@ -29,6 +30,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     const grade = gradeSubmission(quiz.questions, answers);
+    const submittedAt = new Date();
     const submission = submissionSchema.parse({
       id: randomUUID(),
       quizId: quiz.id,
@@ -38,7 +40,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       score: grade.score,
       correctCount: grade.correctCount,
       totalScore: grade.totalScore,
-      submittedAt: new Date().toISOString(),
+      submittedAt: submittedAt.toISOString(),
+      isLate: isLateSubmission(quiz, submittedAt),
     });
     await createSubmission(submission);
     return NextResponse.json({ submission }, { status: 201 });

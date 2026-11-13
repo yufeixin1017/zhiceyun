@@ -13,7 +13,7 @@ function fixture() {
     createdAt: now, updatedAt: now,
   };
   const answers = Object.fromEntries(questions.map((question) => [question.id, question.answer]));
-  const first: Submission = { id: "s1", quizId: quiz.id, studentName: "甲", answers, score: 100, correctCount: 3, totalScore: 100, submittedAt: now };
+  const first: Submission = { id: "s1", quizId: quiz.id, studentName: "甲", answers, score: 100, correctCount: 3, totalScore: 100, submittedAt: now, isLate: false };
   const second: Submission = { ...first, id: "s2", studentName: "乙", answers: {}, score: 0, correctCount: 0 };
   return { quiz, submissions: [first, second] };
 }

@@ -89,6 +89,7 @@ CREATE TABLE IF NOT EXISTS submissions (
   correct_count SMALLINT UNSIGNED NOT NULL,
   total_score SMALLINT UNSIGNED NOT NULL,
   submitted_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  is_late TINYINT(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (id),
   UNIQUE KEY uk_submissions_quiz_student_no (quiz_id, student_no),
   KEY idx_submissions_quiz_submitted (quiz_id, submitted_at),

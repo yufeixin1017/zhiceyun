@@ -22,13 +22,14 @@ export default async function QuizResultsPage({ params }: { params: Promise<{ id
   if (!quiz) notFound();
   const submissions = await listSubmissions(id);
   const analytics = getQuizAnalytics(quiz, submissions);
+  const lateCount = submissions.filter((submission) => submission.isLate).length;
 
   return (
     <>
       <AppHeader />
       <main className="page-container">
         <div className="breadcrumb"><Link href="/teacher">测验工作台</Link><ChevronRight size={13} /><span>测验结果</span></div>
-        <div className="page-heading"><div><div style={{ display: "flex", gap: 9, alignItems: "center", marginBottom: 9 }}><StatusBadge status={quiz.status} /><span className="badge badge-type">{quiz.courseName}</span></div><h1>{quiz.title}</h1><p>{quiz.questions.length} 道客观题 · 满分 100 分 · 建议用时 {quiz.durationMinutes} 分钟</p></div>{quiz.status === "draft" ? <Link href={`/teacher/quizzes/${quiz.id}/edit`} className="btn btn-primary"><FilePenLine size={16} />继续编辑并发布</Link> : submissions.length > 0 ? <a href={`/api/quizzes/${quiz.id}/export`} className="btn btn-secondary"><Download size={16} />导出成绩 CSV</a> : null}</div>
+        <div className="page-heading"><div><div style={{ display: "flex", gap: 9, alignItems: "center", marginBottom: 9 }}><StatusBadge status={quiz.status} /><span className="badge badge-type">{quiz.courseName}</span></div><h1>{quiz.title}</h1><p>{quiz.questions.length} 道客观题 · 满分 100 分 · 答题限时 {quiz.durationMinutes} 分钟</p></div>{quiz.status === "draft" ? <Link href={`/teacher/quizzes/${quiz.id}/edit`} className="btn btn-primary"><FilePenLine size={16} />继续编辑并发布</Link> : submissions.length > 0 ? <a href={`/api/quizzes/${quiz.id}/export`} className="btn btn-secondary"><Download size={16} />导出成绩 CSV</a> : null}</div>
         {quiz.status === "published" && <SharePanel quizId={quiz.id} title={quiz.title} />}
         <section className="stats-grid" aria-label="作答统计">
           <div className="card stat-card"><div className="stat-card-icon"><UsersRound size={21} /></div><div><div className="stat-card-label">提交人数</div><div className="stat-card-value">{analytics.count}<small>人</small></div></div></div>
@@ -47,8 +48,8 @@ export default async function QuizResultsPage({ params }: { params: Promise<{ id
           </section>
         </div>
         <section className="card panel">
-          <div className="panel-header"><div><h2>学生成绩</h2><p>共 {submissions.length} 份有效提交，按提交时间倒序排列</p></div><FileText size={19} className="soft" /></div>
-          {submissions.length === 0 ? <div className="empty-state" style={{ padding: "30px 20px" }}><div className="empty-icon"><UsersRound size={27} /></div><h3>还没有学生提交</h3><p>复制上方作答链接或展示二维码，学生提交后即可看到统计。</p></div> : <div className="table-wrap"><table className="data-table"><thead><tr><th>学生</th><th>学号</th><th>得分</th><th>答对题数</th><th>正确率</th><th>提交时间</th><th>操作</th></tr></thead><tbody>{submissions.map((submission) => <tr key={submission.id}><td><Link href={`/teacher/quizzes/${quiz.id}/students/${submission.id}`} title="查看该学生逐题作答"><span className="student-avatar">{submission.studentName.slice(0, 1)}</span>{submission.studentName}</Link></td><td>{submission.studentNo || "—"}</td><td><strong>{submission.score}</strong> / {submission.totalScore}</td><td>{submission.correctCount} / {quiz.questions.length}</td><td>{Math.round((submission.correctCount / quiz.questions.length) * 100)}%</td><td>{formatDate(submission.submittedAt)}</td><td><Link className="btn btn-secondary btn-sm" href={`/teacher/quizzes/${quiz.id}/students/${submission.id}`}>查看作答</Link></td></tr>)}</tbody></table></div>}
+          <div className="panel-header"><div><h2>学生成绩</h2><p>共 {submissions.length} 份有效提交{lateCount > 0 ? `，其中 ${lateCount} 份超时提交（仍计入统计）` : "，按提交时间倒序排列"}</p></div><FileText size={19} className="soft" /></div>
+          {submissions.length === 0 ? <div className="empty-state" style={{ padding: "30px 20px" }}><div className="empty-icon"><UsersRound size={27} /></div><h3>还没有学生提交</h3><p>复制上方作答链接或展示二维码，学生提交后即可看到统计。</p></div> : <div className="table-wrap"><table className="data-table"><thead><tr><th>学生</th><th>学号</th><th>得分</th><th>答对题数</th><th>正确率</th><th>提交状态</th><th>提交时间</th><th>操作</th></tr></thead><tbody>{submissions.map((submission) => <tr key={submission.id}><td><Link href={`/teacher/quizzes/${quiz.id}/students/${submission.id}`} title="查看该学生逐题作答"><span className="student-avatar">{submission.studentName.slice(0, 1)}</span>{submission.studentName}</Link></td><td>{submission.studentNo || "—"}</td><td><strong>{submission.score}</strong> / {submission.totalScore}</td><td>{submission.correctCount} / {quiz.questions.length}</td><td>{Math.round((submission.correctCount / quiz.questions.length) * 100)}%</td><td>{submission.isLate ? <span className="badge badge-late">超时</span> : <span className="badge badge-published">按时</span>}</td><td>{formatDate(submission.submittedAt)}</td><td><Link className="btn btn-secondary btn-sm" href={`/teacher/quizzes/${quiz.id}/students/${submission.id}`}>查看作答</Link></td></tr>)}</tbody></table></div>}
         </section>
         <section className="card panel" style={{ marginTop: 20 }}>
           <div className="panel-header"><div><h2>题目与标准答案</h2><p>点击任意题目，直接展开作答分布和对应学生名单</p></div></div>

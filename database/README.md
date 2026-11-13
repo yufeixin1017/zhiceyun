@@ -25,7 +25,7 @@ mysql --protocol=TCP -h 127.0.0.1 -P 3306 -u root zhiceyun \
 | `teacher_sessions` | 教师登录会话，保存令牌哈希和过期时间 |
 | `quizzes` | 教师创建的测验、课堂内容和发布状态 |
 | `questions` | 题目、选项、答案、解析、知识点、分值和排列位置 |
-| `submissions` | 学生提交、姓名、学号、得分和提交时间 |
+| `submissions` | 学生提交、姓名、学号、得分、是否超时和提交时间 |
 | `answers` | 每道题的学生答案、正误和得分 |
 | `schema_migrations` | 已执行的初始化版本 |
 
@@ -45,3 +45,7 @@ teachers → quizzes → questions
 - root 空密码仅用于本机首次初始化，应用正式连接应使用独立数据库账号；
 - 不应将 MySQL 的 3306 端口暴露到公网；
 - 生产环境需要单独配置数据库密码和定期备份。
+
+## 时间字段约定
+
+应用统一以 **UTC** 写入 `published_at`、`submitted_at` 等时间字段。手工执行 SQL 构造或校验数据时，请使用 `UTC_TIMESTAMP(3)` 而不是 `NOW()`，否则会因数据库会话时区与 UTC 的差异导致限时判断不正确。

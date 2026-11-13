@@ -169,6 +169,7 @@ async function attachAnswers(rows: SubmissionRow[]): Promise<Submission[]> {
       correctCount: submission.correctCount,
       totalScore: submission.totalScore,
       submittedAt: submission.submittedAt.toISOString(),
+      isLate: submission.isLate,
     });
   });
 }
@@ -217,6 +218,7 @@ export async function createSubmission(
         correctCount: submission.correctCount,
         totalScore: submission.totalScore,
         submittedAt: new Date(submission.submittedAt),
+        isLate: submission.isLate,
       });
 
       await transaction.insert(answers).values(quiz.questions.map((question) => {

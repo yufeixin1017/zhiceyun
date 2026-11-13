@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { BookOpen, Check, Clock3, FileText, Send, UserRound } from "lucide-react";
 import { QUESTION_TYPE_LABELS } from "@/lib/domain";
 import type { PublicQuiz, Submission } from "@/lib/domain";
+import { Countdown } from "@/components/countdown";
 
-export function StudentQuiz({ quiz }: { quiz: PublicQuiz }) {
+export function StudentQuiz({ quiz, deadline }: { quiz: PublicQuiz; deadline: string | null }) {
   const router = useRouter();
   const [studentName, setStudentName] = useState("");
   const [studentNo, setStudentNo] = useState("");
@@ -51,7 +52,7 @@ export function StudentQuiz({ quiz }: { quiz: PublicQuiz }) {
       <section className="student-hero">
         <span className="badge"><BookOpen size={13} />{quiz.courseName}</span>
         <h1>{quiz.title}</h1><p>请独立完成作答。提交后系统会立即显示成绩、正确答案与解析。</p>
-        <div className="student-meta"><span><FileText size={14} />{quiz.questions.length} 道题 · 100 分</span><span><Clock3 size={14} />建议 {quiz.durationMinutes} 分钟</span></div>
+        <div className="student-meta"><span><FileText size={14} />{quiz.questions.length} 道题 · 100 分</span><span><Clock3 size={14} />限时 {quiz.durationMinutes} 分钟</span>{deadline && <Countdown deadline={deadline} />}</div>
       </section>
       <section className="card student-info" aria-label="作答人信息">
         <div className="field" style={{ margin: 0 }}><label htmlFor="student-name">姓名或演示昵称 <span className="text-danger">*</span></label><input id="student-name" className="input" value={studentName} onChange={(event) => setStudentName(event.target.value)} placeholder="例如：张同学" maxLength={40} required /></div>

@@ -85,6 +85,7 @@ export const submissions = mysqlTable("submissions", {
   correctCount: smallint("correct_count", { unsigned: true }).notNull(),
   totalScore: smallint("total_score", { unsigned: true }).notNull(),
   submittedAt: datetime("submitted_at", { mode: "date", fsp: 3 }).notNull().default(sql`CURRENT_TIMESTAMP(3)`),
+  isLate: boolean("is_late").notNull().default(false),
 }, (table) => [
   uniqueIndex("uk_submissions_quiz_student_no").on(table.quizId, table.studentNo),
   index("idx_submissions_quiz_submitted").on(table.quizId, table.submittedAt),
