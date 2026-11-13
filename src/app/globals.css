@@ -224,6 +224,9 @@ button:disabled { cursor: not-allowed; opacity: .58; }
 
 .share-panel { display: grid; grid-template-columns: 1fr auto; gap: 22px; align-items: center; padding: 22px; margin-bottom: 22px; background: linear-gradient(120deg, #f2f2ff, #fafaff); border-color: #dedfff; }
 .share-panel h3 { margin: 0 0 7px; font-size: 16px; }
+.share-hint { display: flex; align-items: flex-start; gap: 6px; margin: 12px 0 0; color: var(--soft); font-size: 12px; line-height: 1.7; }
+.share-hint svg { flex: none; margin-top: 2px; }
+.share-hint-warning { color: #9a5b16; }
 .share-panel p { margin: 0 0 14px; color: var(--muted); font-size: 12px; }
 .share-link { display: flex; gap: 8px; }
 .share-link .input { background: white; font-size: 12px; }

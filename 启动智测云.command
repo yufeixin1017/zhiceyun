@@ -10,7 +10,20 @@ NODE="$NODE_HOME/node"
 PNPM="/Users/xinyanbin/.dsh/dsh-runtimes/dsh-primary-runtime/dependencies/pnpm/bin/pnpm.mjs"
 PORT="${ZHICE_PORT:-3000}"
 BASE_URL="http://127.0.0.1:$PORT"
+LISTEN_HOST="0.0.0.0"
 SERVER_PID=""
+
+lan_address() {
+  local address
+  for interface in en0 en1 en2; do
+    address="$(/usr/sbin/ipconfig getifaddr "$interface" 2>/dev/null || true)"
+    if [[ -n "$address" ]]; then
+      print -- "$address"
+      return 0
+    fi
+  done
+  return 1
+}
 
 pause_on_error() {
   print -u2 "\n启动失败：$1"
@@ -70,7 +83,7 @@ print "正在检查并构建最新版本…"
 "$NODE" "$PNPM" build || pause_on_error "项目构建失败，请查看上方错误信息。"
 
 print "正在启动智测云…"
-"$NODE" "$PNPM" start --hostname 127.0.0.1 --port "$PORT" &
+"$NODE" "$PNPM" start --hostname "$LISTEN_HOST" --port "$PORT" &
 SERVER_PID=$!
 
 READY=0
@@ -90,7 +103,14 @@ done
 
 print ""
 print "✓ 智测云启动成功！"
-print "✓ 浏览器地址：$BASE_URL"
+print "✓ 本机浏览器：$BASE_URL"
+LAN_IP="$(lan_address || true)"
+if [[ -n "$LAN_IP" ]]; then
+  print "✓ 手机访问（需与电脑连接同一 Wi-Fi）：http://$LAN_IP:$PORT"
+  print "  首次访问若被系统拦截，请在“系统设置 → 网络 → 防火墙”中允许 Node.js 接收连接。"
+else
+  print "! 未检测到局域网 IP，学生手机暂时无法直接访问。"
+fi
 print ""
 print "请保持此窗口开启。按 Control + C 可停止服务。"
 print ""

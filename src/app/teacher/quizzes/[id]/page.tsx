@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { BarChart3, BookOpenCheck, ChevronRight, ClipboardCheck, Download, FilePenLine, FileText, Medal, UsersRound } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { AppHeader } from "@/components/app-header";
 import { SharePanel } from "@/components/share-panel";
 import { StatusBadge } from "@/components/status-badge";
@@ -11,6 +12,7 @@ import { QUESTION_TYPE_LABELS } from "@/lib/domain";
 import { getTeacherQuiz, listSubmissions } from "@/lib/store";
 import { requireTeacher } from "@/lib/auth";
 import { formatDate } from "@/lib/utils";
+import { buildShareBaseUrl, getLanAddresses } from "@/lib/share-url";
 
 export const metadata: Metadata = { title: "测验结果与学情统计" };
 export const dynamic = "force-dynamic";
@@ -23,6 +25,14 @@ export default async function QuizResultsPage({ params }: { params: Promise<{ id
   const submissions = await listSubmissions(id);
   const analytics = getQuizAnalytics(quiz, submissions);
   const lateCount = submissions.filter((submission) => submission.isLate).length;
+  const headerStore = await headers();
+  const lanAddresses = getLanAddresses();
+  const shareBaseUrl = buildShareBaseUrl({
+    requestHost: headerStore.get("host") ?? "",
+    forwardedProto: headerStore.get("x-forwarded-proto"),
+    lanAddresses,
+  });
+  const needsPublicUrl = /^https?:\/\/(127\.0\.0\.1|localhost)(:|\/|$)/.test(shareBaseUrl);
 
   return (
     <>
@@ -30,7 +40,7 @@ export default async function QuizResultsPage({ params }: { params: Promise<{ id
       <main className="page-container">
         <div className="breadcrumb"><Link href="/teacher">测验工作台</Link><ChevronRight size={13} /><span>测验结果</span></div>
         <div className="page-heading"><div><div style={{ display: "flex", gap: 9, alignItems: "center", marginBottom: 9 }}><StatusBadge status={quiz.status} /><span className="badge badge-type">{quiz.courseName}</span></div><h1>{quiz.title}</h1><p>{quiz.questions.length} 道客观题 · 满分 100 分 · 答题限时 {quiz.durationMinutes} 分钟</p></div>{quiz.status === "draft" ? <Link href={`/teacher/quizzes/${quiz.id}/edit`} className="btn btn-primary"><FilePenLine size={16} />继续编辑并发布</Link> : submissions.length > 0 ? <a href={`/api/quizzes/${quiz.id}/export`} className="btn btn-secondary"><Download size={16} />导出成绩 CSV</a> : null}</div>
-        {quiz.status === "published" && <SharePanel quizId={quiz.id} title={quiz.title} />}
+        {quiz.status === "published" && <SharePanel quizId={quiz.id} title={quiz.title} shareBaseUrl={shareBaseUrl} lanAddresses={lanAddresses} needsPublicUrl={needsPublicUrl} />}
         <section className="stats-grid" aria-label="作答统计">
           <div className="card stat-card"><div className="stat-card-icon"><UsersRound size={21} /></div><div><div className="stat-card-label">提交人数</div><div className="stat-card-value">{analytics.count}<small>人</small></div></div></div>
           <div className="card stat-card"><div className="stat-card-icon green"><BarChart3 size={21} /></div><div><div className="stat-card-label">平均得分</div><div className="stat-card-value">{analytics.averageScore}<small>/ 100</small></div></div></div>
