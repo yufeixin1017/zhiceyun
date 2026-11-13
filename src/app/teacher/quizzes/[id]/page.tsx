@@ -40,7 +40,7 @@ export default async function QuizResultsPage({ params }: { params: Promise<{ id
       <main className="page-container">
         <div className="breadcrumb"><Link href="/teacher">测验工作台</Link><ChevronRight size={13} /><span>测验结果</span></div>
         <div className="page-heading"><div><div style={{ display: "flex", gap: 9, alignItems: "center", marginBottom: 9 }}><StatusBadge status={quiz.status} /><span className="badge badge-type">{quiz.courseName}</span></div><h1>{quiz.title}</h1><p>{quiz.questions.length} 道客观题 · 满分 100 分 · 答题限时 {quiz.durationMinutes} 分钟</p></div>{quiz.status === "draft" ? <Link href={`/teacher/quizzes/${quiz.id}/edit`} className="btn btn-primary"><FilePenLine size={16} />继续编辑并发布</Link> : submissions.length > 0 ? <a href={`/api/quizzes/${quiz.id}/export`} className="btn btn-secondary"><Download size={16} />导出成绩 CSV</a> : null}</div>
-        {quiz.status === "published" && <SharePanel quizId={quiz.id} title={quiz.title} shareBaseUrl={shareBaseUrl} lanAddresses={lanAddresses} needsPublicUrl={needsPublicUrl} />}
+        {quiz.status === "published" && <SharePanel quizId={quiz.id} title={quiz.title} shareBaseUrl={shareBaseUrl} needsPublicUrl={needsPublicUrl} />}
         <section className="stats-grid" aria-label="作答统计">
           <div className="card stat-card"><div className="stat-card-icon"><UsersRound size={21} /></div><div><div className="stat-card-label">提交人数</div><div className="stat-card-value">{analytics.count}<small>人</small></div></div></div>
           <div className="card stat-card"><div className="stat-card-icon green"><BarChart3 size={21} /></div><div><div className="stat-card-label">平均得分</div><div className="stat-card-value">{analytics.averageScore}<small>/ 100</small></div></div></div>
