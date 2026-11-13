@@ -423,3 +423,24 @@ AI 说明了几种计时起点与超时处理的权衡。用户最终选择：**
 - Docker 镜像未在本机构建（macOS 未安装 Docker），首次 `docker compose up` 需在 Ubuntu 上完成验证。
 
 ### 建议录屏方式
+
+---
+
+## 迭代 19：增加 Ubuntu 原生部署方案
+
+### 用户反馈
+
+> “必须使用docker吗，可以直接安装各种依赖吗？服务器已经有cloudflare tunnel服务，我之前安装过。”
+
+Docker 只是可复现的部署方式，并非必需；服务器已有 MySQL 与 cloudflared 时，原生部署改动更少。
+
+### AI 修改与验证
+
+- 新增 `deploy/zhiceyun.service`：systemd 托管，仅监听 `127.0.0.1:3100`，由同机 cloudflared 对外提供服务；
+- 新增 `deploy/zhiceyun.env.example`：数据库连接、模型密钥、公网地址与 Cookie 配置模板；
+- 编写 `docs/deployment-ubuntu-native.md`：Node.js 与 MySQL 安装、数据库与账号创建、迁移执行、构建、systemd、隧道接入、备份与排错；
+- 明确提示服务器上可能已有项目占用 3000 端口，示例统一改用 3100；
+- README 同时列出原生与 Docker 两种部署方式，并说明取舍；
+- 本机无法验证 systemd 与隧道，已在文档中标注需在服务器实测。
+
+### 建议录屏方式

@@ -1,0 +1,24 @@
+[Unit]
+Description=Zhiceyun classroom quiz (AI quiz generation and grading)
+After=network-online.target mysql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=zhiceyun
+Group=zhiceyun
+WorkingDirectory=/opt/zhiceyun
+Environment=NODE_ENV=production
+EnvironmentFile=/etc/zhiceyun/zhiceyun.env
+# 只监听本机，由同机的 cloudflared 对外提供服务；如需局域网直连改成 0.0.0.0
+ExecStart=/usr/bin/node scripts/next.mjs start --hostname 127.0.0.1 --port 3100
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/zhiceyun/.next
+
+[Install]
+WantedBy=multi-user.target

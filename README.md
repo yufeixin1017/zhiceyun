@@ -67,14 +67,30 @@
 - MySQL 服务需要已启动，并已执行下方初始化 SQL；
 - PATH 仅在启动器进程内临时设置，不修改系统环境变量。
 
-#### Docker 部署（Ubuntu 服务器）
+#### 部署到 Ubuntu 服务器
+
+服务器部署有两种方式，按现有环境选择即可：
+
+**原生部署（推荐：已有 MySQL 与 cloudflared）**
+
+```bash
+pnpm install --frozen-lockfile
+pnpm build
+sudo cp deploy/zhiceyun.service /etc/systemd/system/
+sudo cp deploy/zhiceyun.env.example /etc/zhiceyun/zhiceyun.env   # 填写后使用
+sudo systemctl enable --now zhiceyun
+```
+
+完整步骤见 [Ubuntu 原生部署指南](docs/deployment-ubuntu-native.md)。
+
+**Docker 部署（环境隔离）**
 
 ```bash
 cp .env.docker.example .env   # 填写数据库密码与模型密钥
 docker compose up -d --build
 ```
 
-完整的服务器部署、公网隧道与备份步骤见 [Ubuntu 主机部署指南](docs/deployment-ubuntu.md)。
+完整步骤见 [Ubuntu Docker 部署指南](docs/deployment-ubuntu.md)。
 
 #### 终端启动
 
@@ -253,4 +269,5 @@ docs/
 - [真实 AI 协同开发记录](docs/ai-collaboration.md)
 - [5–8 分钟演示视频脚本](docs/demo-script.md)
 - [比赛提交检查清单](docs/competition-checklist.md)
-- [Ubuntu 主机部署指南](docs/deployment-ubuntu.md)
+- [Ubuntu 原生部署指南](docs/deployment-ubuntu-native.md)
+- [Ubuntu Docker 部署指南](docs/deployment-ubuntu.md)

@@ -2,6 +2,8 @@
 
 本指南把智测云部署到一台常开的 Ubuntu 主机，学生通过链接或二维码用手机作答，不受同一 Wi-Fi 限制。
 
+> 不想使用 Docker？服务器已有 MySQL 和 cloudflared 时，见 [Ubuntu 原生部署指南](deployment-ubuntu-native.md)，直接安装 Node.js 并用 systemd 托管服务。
+
 ## 1. 环境要求
 
 - Ubuntu 22.04 / 24.04（x86_64 或 arm64 均可）；
