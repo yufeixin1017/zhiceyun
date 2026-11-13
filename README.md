@@ -67,6 +67,15 @@
 - MySQL 服务需要已启动，并已执行下方初始化 SQL；
 - PATH 仅在启动器进程内临时设置，不修改系统环境变量。
 
+#### Docker 部署（Ubuntu 服务器）
+
+```bash
+cp .env.docker.example .env   # 填写数据库密码与模型密钥
+docker compose up -d --build
+```
+
+完整的服务器部署、公网隧道与备份步骤见 [Ubuntu 主机部署指南](docs/deployment-ubuntu.md)。
+
 #### 终端启动
 
 ```bash
@@ -244,3 +253,4 @@ docs/
 - [真实 AI 协同开发记录](docs/ai-collaboration.md)
 - [5–8 分钟演示视频脚本](docs/demo-script.md)
 - [比赛提交检查清单](docs/competition-checklist.md)
+- [Ubuntu 主机部署指南](docs/deployment-ubuntu.md)

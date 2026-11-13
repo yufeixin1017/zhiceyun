@@ -1,0 +1,14 @@
+node_modules
+.next
+.test-dist
+.cache
+data
+.git
+.gitignore
+.env
+.env.local
+.env.*.local
+*.command
+*.log
+docs
+README.md

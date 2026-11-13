@@ -400,3 +400,26 @@ AI 说明了几种计时起点与超时处理的权衡。用户最终选择：**
 - 实测：配置 `PUBLIC_BASE_URL` 后，分享链接切换为公网地址且不再出现回环提示。
 
 ### 建议录屏方式
+
+---
+
+## 迭代 18：Ubuntu 主机部署产物
+
+### 用户目标
+
+> “先在 Ubuntu 主机上部署。”
+
+学生使用流量时无法访问局域网地址，需要把服务放到常开主机并通过公网隧道暴露。
+
+### AI 修改与验证
+
+- `next.config.ts` 开启 `output: "standalone"`，容器只携带运行所需文件；
+- 新增多阶段 `Dockerfile`（deps → builder → runner），以非 root 用户运行；
+- 新增 `docker-compose.yml`：应用 + MySQL 8.4，数据库首次启动按顺序执行 001～004 迁移；
+- 数据库端口仅绑定 `127.0.0.1`，应用容器通过健康检查后才启动；
+- 新增 `.dockerignore` 与 `.env.docker.example`；
+- 编写 `docs/deployment-ubuntu.md`：Docker 安装、环境变量、启动、教师初始化、Cloudflare 隧道、备份与升级；
+- 本机验证：standalone 入口 `node .next/standalone/server.js` 可正常响应页面与静态资源，原有 `next start` 方式未受影响；
+- Docker 镜像未在本机构建（macOS 未安装 Docker），首次 `docker compose up` 需在 Ubuntu 上完成验证。
+
+### 建议录屏方式
