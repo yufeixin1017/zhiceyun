@@ -186,6 +186,7 @@ assert.equal(zero.body.submission.score, 0);
 const resultPage = await request(`/quiz/${quiz.id}/result/${perfect.body.submission.id}`, { auth: false });
 assert.equal(resultPage.response.status, 200);
 assert.equal(resultPage.body.includes("100"), true);
+assert.equal(resultPage.body.includes("本次作答已完成，你可以关闭此页面"), true);
 const dashboard = await request(`/teacher/quizzes/${quiz.id}`);
 assert.equal(dashboard.response.status, 200);
 assert.equal(dashboard.body.includes("满分演示"), true);

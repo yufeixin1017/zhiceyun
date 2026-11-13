@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Check, CheckCircle2, ChevronRight, X } from "lucide-react";
-import Link from "next/link";
+import { CheckCircle2, X } from "lucide-react";
 import { notFound } from "next/navigation";
 import { Logo } from "@/components/logo";
 import { QUESTION_TYPE_LABELS } from "@/lib/domain";
@@ -21,7 +20,7 @@ export default async function SubmissionResultPage({ params }: { params: Promise
     <main className="student-shell">
       <div className="student-brand"><Logo /><span className="student-brand-note">{quiz.courseName}</span></div>
       <section className="card score-hero"><div className="score-check"><CheckCircle2 size={29} /></div><h1>提交成功，{submission.studentName}</h1><p>{quiz.title}</p><div className="score-number">{submission.score}<small> / {submission.totalScore} 分</small></div><div className="score-summary"><span>答对<strong>{submission.correctCount} / {quiz.questions.length}</strong></span><span>正确率<strong>{Math.round((submission.correctCount / quiz.questions.length) * 100)}%</strong></span></div></section>
-      <div className="page-heading" style={{ marginTop: 28 }}><div><h1 style={{ fontSize: 21 }}>逐题回顾</h1><p>对照正确答案与解析，找到还需要巩固的知识点。</p></div><Link href="/" className="btn btn-secondary btn-sm">完成<Check size={14} /></Link></div>
+      <div className="page-heading" style={{ marginTop: 28 }}><div><h1 style={{ fontSize: 21 }}>逐题回顾</h1><p>对照正确答案与解析，找到还需要巩固的知识点。</p></div><span className="badge badge-published"><CheckCircle2 size={14} />已完成</span></div>
       {quiz.questions.map((question, index) => {
         const result = grade.results.find((item) => item.questionId === question.id)!;
         return <article className={`card result-question ${result.isCorrect ? "correct" : "incorrect"}`} key={question.id}>
@@ -31,7 +30,7 @@ export default async function SubmissionResultPage({ params }: { params: Promise
           <div className="explanation"><strong>解析 · {question.knowledgePoint}</strong><br />{result.explanation}</div>
         </article>;
       })}
-      <div className="breadcrumb" style={{ justifyContent: "center", marginTop: 25 }}><Link href="/">智测云</Link><ChevronRight size={12} /><span>本次作答已完成</span></div>
+      <div className="completion-note"><CheckCircle2 size={16} /><span>本次作答已完成，你可以关闭此页面，无需其他操作。</span></div>
     </main>
   );
 }

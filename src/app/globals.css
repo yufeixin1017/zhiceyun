@@ -283,6 +283,8 @@ button:disabled { cursor: not-allowed; opacity: .58; }
 .score-number small { color: var(--soft); font-size: 18px; letter-spacing: 0; font-weight: 500; }
 .score-summary { display: flex; justify-content: center; gap: 35px; margin-top: 20px; color: var(--muted); font-size: 12px; }
 .score-summary strong { color: var(--ink); margin-left: 5px; }
+.completion-note { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 28px 0 10px; color: var(--soft); font-size: 13px; text-align: center; }
+.completion-note svg { color: var(--teal); flex: none; }
 .result-question { padding: 22px; margin-bottom: 14px; }
 .result-question.correct { border-left: 3px solid var(--teal); }
 .result-question.incorrect { border-left: 3px solid var(--danger); }
