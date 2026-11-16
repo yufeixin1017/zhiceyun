@@ -221,7 +221,7 @@ Docker Compose 部署见：[Ubuntu Docker 部署指南](docs/deployment-ubuntu.m
 /etc/zhiceyun/zhiceyun.env
 ```
 
-服务器示例使用 `127.0.0.1:3100`，避免与现有 `new-api` 的 3000 端口冲突。MySQL 仅监听本机，公网通过 Cloudflare 访问应用。
+服务器示例使用 `127.0.0.1:3100`。MySQL 仅监听本机，公网通过 Cloudflare 访问应用。
 
 ## 五、项目边界与数据说明
 
