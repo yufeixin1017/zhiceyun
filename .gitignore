@@ -24,3 +24,7 @@ data/*.tmp
 # test output and coverage
 .test-dist/
 coverage/
+
+# competition submission package build outputs
+提交包/
+智测云-比赛提交.zip
