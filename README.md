@@ -235,5 +235,6 @@ Docker Compose 部署见：[Ubuntu Docker 部署指南](docs/deployment-ubuntu.m
 
 ## 六、提交材料
 
+- [完整 AI 对话历史（Markdown）](提交材料/智测云-完整对话历史.md)
 - [AI 协同 Prompt 演进记录（PDF）](提交材料/智测云-AI协同Prompt演进记录.pdf)
 - [技术文档（PDF）](提交材料/智测云-技术文档.pdf)
