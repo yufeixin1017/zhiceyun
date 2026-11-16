@@ -236,8 +236,4 @@ Docker Compose 部署见：[Ubuntu Docker 部署指南](docs/deployment-ubuntu.m
 ## 六、提交材料
 
 - [AI 协同 Prompt 演进记录（PDF）](提交材料/智测云-AI协同Prompt演进记录.pdf)
-- [5–8 分钟演示视频脚本](提交材料/智测云-演示视频脚本.md)
 - [技术文档（PDF）](提交材料/智测云-技术文档.pdf)
-- [提交说明与最终清单](提交材料/智测云-提交说明.md)
-- [系统架构说明](docs/architecture.md)
-- [比赛提交检查清单](docs/competition-checklist.md)
