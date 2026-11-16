@@ -247,17 +247,17 @@ add_table(["项目", "内容"], [
 ], widths=[3.2, 12.8])
 add_para("本作品以真实 Vibe Coding 协同过程完成，文档中的迭代、报错和验证均可由代码、测试与 Git 历史交叉核对。", color=MUTED, size=9)
 
-# 1 提交摘要
-new_section("1. 提交摘要", "用一份真实课堂随堂测闭环，呈现 AI 生成、教师审核、学生作答与自动评阅。")
-add_heading("1.1 项目成果", 2)
+# 1 项目说明
+new_section("1. 项目说明", "我把一次真实课堂随堂测拆成 AI 生成、教师审核、学生作答和自动评阅四个环节，做成了可以实际使用的系统。")
+add_heading("1.1 我完成的功能", 2)
 add_bullets([
-    "教师输入真实课堂内容，系统仅通过大模型生成单选、多选、判断和简短填空题；",
-    "教师可编辑、审核、排序和发布测验，学生通过链接或二维码在线作答；",
-    "服务端自动评分，支持个人解析、班级统计、题目分布、学生名单和 CSV 导出；",
-    "教师手机号注册登录、按 teacherId 隔离数据，学生无需注册；",
-    "MySQL 事务化持久化，Ubuntu＋Cloudflare 公网部署，手机流量可直接访问。",
+    "我输入真实课堂内容后，系统只通过大模型生成单选、多选、判断和简短填空题；",
+    "我可以编辑、审核、排序和发布测验，学生通过链接或二维码在线作答；",
+    "服务端自动评分，我可以查看个人解析、班级统计、题目分布、学生名单并导出 CSV；",
+    "教师使用手机号注册登录，数据按 teacherId 隔离，学生不需要注册；",
+    "数据使用 MySQL 事务化保存，部署在 Ubuntu 和 Cloudflare 上，手机流量也能访问。",
 ])
-add_heading("1.2 提交证据", 2)
+add_heading("1.2 我保留的验证结果", 2)
 add_table(["证据类型", "当前结果"], [
     ["代码与演进", "GitHub 完整历史，材料整理前 28 次功能迭代提交"],
     ["自动化测试", "35 项单元测试，覆盖评分、权限、排序、限时、分享和时间格式"],
@@ -265,12 +265,13 @@ add_table(["证据类型", "当前结果"], [
     ["持久化验证", "6 道题、2 份提交、12 条逐题答案，满分与零分均正确"],
     ["部署验证", "Node.js＋MySQL＋systemd＋Cloudflare Quick Tunnel"],
 ], widths=[3.5, 12.5])
-add_para("公网演示地址：请在提交前填写服务器当前 PUBLIC_BASE_URL，确保评审期间可访问。", bold_prefix="公网演示地址：")
+add_para("公网演示地址：https://luis-gratuit-validation-iii.trycloudflare.com", bold_prefix="公网演示地址：")
+add_para("测试教师账号：手机号 16666666666，密码 qwer@1234。账号仅用于比赛评审，我在 2026 年 11 月 16 日已验证可以登录。", bold_prefix="测试教师账号：")
 
 # 2 背景与范围
 new_section("2. 项目背景、真实痛点与功能边界")
 add_heading("2.1 真实痛点", 2)
-add_para("随堂测验需要教师临时出题、收集答案、逐份评分并统计错误。传统表单工具能收集数据，却不能直接依据课堂讲义生成结构化题目、答案和解析，也无法形成自动评阅与学情反馈闭环。智测云将这一过程压缩为“内容输入—AI 生成—教师审核—移动作答—自动评阅”。")
+add_para("我在准备随堂测验时，经常需要临时出题、收集答案、逐份评分并统计错误。普通表单工具虽然能收集数据，却不能直接根据讲义生成题目、答案和解析，更不能完成自动评阅。因此我把这个过程拆成“内容输入—AI 生成—教师审核—移动作答—自动评阅”，希望减少重复劳动，同时保留教师对题目质量的判断。")
 add_heading("2.2 产品边界", 2)
 add_table(["范围内", "范围外"], [
     ["单选、多选、判断、简短填空", "主观题、数学证明和计算过程评阅"],
@@ -293,7 +294,7 @@ add_table(["角色", "主要操作", "权限边界"], [
 add_para("公开学生页面使用独立的数据脱敏层，教师页面与管理 API 全部需要有效会话。", bold_prefix="公开学生页面")
 
 # 4 架构
-new_section("4. 系统架构与技术选型")
+new_section("4. 我的技术方案与整体架构")
 add_heading("4.1 总体架构", 2)
 add_code("教师浏览器 ─┐\n              ├→ Next.js App Router / Route Handlers\n学生手机 ───┘              │\n                           ├─ AI Generator：Prompt、JSON 提取、字段归一化\n                           ├─ Zod：业务规则与 Schema 校验\n                           ├─ Scoring / Analytics：评分、限时和统计\n                           └─ Drizzle ORM → MySQL 8.x（事务与唯一约束）\n\nCloudflare → zhiceyun-tunnel → 127.0.0.1:3100 → Next.js → 本机 MySQL")
 add_heading("4.2 技术栈", 2)
@@ -308,7 +309,7 @@ add_table(["层次", "选型", "选择理由"], [
 # 5 Schema
 new_section("5. Assessment Schema 与数据模型")
 add_heading("5.1 为什么不让模型直接生成页面代码", 2)
-add_para("模型只生成受约束的结构化数据，系统再将其渲染为教师编辑器和学生作答表单。这样可以统一进行字段校验、排序、持久化、评分和统计，避免模型输出不可运行的 HTML 或一次性代码。")
+add_para("我没有让模型直接生成页面代码，而是只让它返回受约束的结构化数据，再由系统渲染成教师编辑器和学生作答表单。这样我能统一校验、排序、保存和评分，避免出现模型生成了一段看似漂亮、实际无法运行的代码。")
 add_heading("5.2 单题结构示例", 2)
 add_code('{\n  "type": "single_choice",\n  "stem": "模型在训练集表现很好，但在新数据上误差明显增大，称为？",\n  "options": [{"id":"A","text":"欠拟合"},{"id":"B","text":"过拟合"}],\n  "answer": ["B"],\n  "explanation": "过拟合表现为泛化能力下降。",\n  "knowledgePoint": "过拟合的概念",\n  "score": 17\n}')
 add_heading("5.3 核心实体", 2)
@@ -321,14 +322,14 @@ add_table(["实体", "关键字段", "作用"], [
 
 # 6 Prompt 策略
 new_section("6. 意图控制与 Prompt 工程")
-add_heading("6.1 输入意图结构化", 2)
+add_heading("6.1 我怎样把教师意图拆成结构化输入", 2)
 add_bullets([
     "教师必须提供课程名称、课堂主题和至少 10 个字的课堂内容；",
     "题量限定为 3–10 道，题型限定为单选、多选、判断、填空；",
     "难度分为基础、适中、进阶，答题限时由教师明确设置；",
     "不生成简答、证明、计算过程或需要上传图片的题目。",
 ])
-add_heading("6.2 Prompt 约束", 2)
+add_heading("6.2 我在 Prompt 中明确的要求", 2)
 add_bullets([
     "只输出 JSON 对象，不输出 Markdown、注释或额外说明；",
     "每题必须包含 stem、type、options、answer、explanation、knowledgePoint；",
@@ -342,7 +343,7 @@ add_code("模型 JSON → JSON 提取 → 题量检查 → 字段归一化 → Z
 add_para("模型请求失败或格式不合法时明确报错，不会静默替换成预置题目。", bold_prefix="模型请求失败")
 
 # 7 归一化与排序
-new_section("7. 模型输出归一化与确定性排序")
+new_section("7. 我怎样处理模型输出和题目排序")
 add_heading("7.1 真实兼容问题", 2)
 add_para("不同模型可能使用 question、choices、correctAnswer、analysis 等字段。系统先归一化为统一 Schema，再执行严格业务校验。兼容别名只改变输入形式，不放宽题量、题型、选项和答案约束。")
 add_table(["模型常见字段", "系统标准字段"], [
@@ -437,38 +438,38 @@ add_bullets([
         "systemd 负责应用与隧道后台运行，Quick Tunnel 地址变化时更新 PUBLIC_BASE_URL。",
 ])
 
-# 12 迭代一
-new_section("12. 核心 AI 迭代一：模型字段校验与 Prompt 修复")
-add_heading("12.1 用户问题", 2)
-add_para("“为什么报错了呢，生成的题目未通过校验，请调整要求后重试。你看一下 .env.local，我已经填写了真实的 API Key 和 Base URL。”", color=PRIMARY)
-add_heading("12.2 排查与修复", 2)
+# 12 第一次关键修改
+new_section("12. 第一次关键修改：模型返回的字段对不上")
+add_heading("12.1 我遇到的问题", 2)
+add_para("接入真实模型后，我以为只要填好 API Key 和 Base URL 就能直接出题，但页面却提示“生成的题目未通过校验，请调整要求后重试”。", color=PRIMARY)
+add_heading("12.2 我的处理过程", 2)
 add_bullets([
-        "确认配置存在且 /api/config 返回 aiConfigured=true，排除密钥未读取；",
-        "使用真实接口复现，得到 HTTP 422 和 stem: expected string, received undefined；",
-        "在 Prompt 中补充完整 JSON 模板，明确六个必需字段；",
-        "兼容 question、choices、correctAnswer、analysis 等字段别名；",
-        "保留题量、题型、答案、选项和总分的严格校验；",
-        "校验错误增加题号和字段路径，便于继续定位。",
+        "我先确认配置存在且 /api/config 返回 aiConfigured=true，排除密钥未读取；",
+        "重新调用真实接口后，我拿到 HTTP 422 和 stem: expected string, received undefined；",
+        "我在 Prompt 中补充完整 JSON 模板，明确六个必需字段；",
+        "同时兼容 question、choices、correctAnswer、analysis 等常见字段别名；",
+        "题量、题型、答案、选项和总分仍然严格校验，没有为了兼容而放宽；",
+        "校验错误增加题号和字段路径，方便我继续定位。",
 ])
-add_heading("12.3 真实验证", 2)
-add_code("HTTP 201\n生成模式：ai\n题目数量：6\n题型顺序：单选 → 多选 → 判断 → 填空 → 单选 → 多选\n总分：100\n题干、答案和解析完整性：True")
-add_para("随后用户要求同一知识点集中排列，AI 又增加服务端 organizeQuestions，以确定性规则解决题目散落问题。")
+add_heading("12.3 我最后得到的验证结果", 2)
+add_code("HTTP 201\n题目数量：6\n题型顺序：单选 → 多选 → 判断 → 填空 → 单选 → 多选\n总分：100\n题干、答案和解析均完整")
+add_para("后来我又发现同一知识点的题目会散开，于是增加了服务端 organizeQuestions，统一按知识点分组，并按单选、多选、判断、填空的顺序排列。")
 add_para("对应提交：f4d5351、682e64a。", bold_prefix="对应提交：")
 
-# 13 迭代二
-new_section("13. 核心 AI 迭代二：从 JSON 到 MySQL 持久化")
-add_heading("13.1 用户问题", 2)
-add_para("“代码修改了吗，现在数据应该需要持久化到数据库里了。”", color=PRIMARY)
-add_heading("13.2 排查与修复", 2)
+# 13 第二次关键修改
+new_section("13. 第二次关键修改：数据库建好了，应用却还在写 JSON")
+add_heading("13.1 我注意到的问题", 2)
+add_para("我检查数据流向时发现，虽然 MySQL 数据库和表已经创建，页面产生的数据仍然保存在 data/database.json 中。于是我直接向 AI 提出：“代码修改了吗，现在数据应该需要持久化到数据库里了。”", color=PRIMARY)
+add_heading("13.2 我的处理过程", 2)
 add_bullets([
-        "确认此前只建表，应用仍写 data/database.json；",
+        "我保留现有页面和 API，只替换底层存储，避免把能用的功能重写；",
         "使用 Drizzle ORM＋mysql2 建立连接池和表结构映射；",
-        "保持 listQuizzes、createQuiz、createSubmission 等原接口，避免重写页面；",
-        "测验与题目、提交与逐题答案分别使用事务；",
-        "通过 DATABASE_URL 配置连接，新增 /api/health 健康检查；",
+        "保持 listQuizzes、createQuiz、createSubmission 等原接口；",
+        "测验与题目、提交与逐题答案分别使用事务写入；",
+        "通过 DATABASE_URL 配置连接，并新增 /api/health 健康检查；",
         "应用层检查与 MySQL 唯一索引共同防止重复学号。",
 ])
-add_heading("13.3 数据库直接验证", 2)
+add_heading("13.3 我直接查询数据库得到的结果", 2)
 add_table(["验证项", "实际结果"], [
     ["测验", "published，6 道题，总分 100"],
     ["学生提交", "2 份，满分 100、全错 0"],
@@ -478,19 +479,19 @@ add_table(["验证项", "实际结果"], [
 ], widths=[4.5, 11.5])
 add_para("对应提交：0b7d7a4、bdf11b3。", bold_prefix="对应提交：")
 
-# 14 迭代三
-new_section("14. 核心 AI 迭代三：教师登录与权限隔离")
-add_heading("14.1 用户需求", 2)
-add_para("“现在完成教师登陆的开发。”", color=PRIMARY)
-add_heading("14.2 实现过程", 2)
+# 14 第三次关键修改
+new_section("14. 第三次关键修改：教师登录与数据隔离")
+add_heading("14.1 我为什么必须补上登录", 2)
+add_para("早期版本里，任何人只要知道教师端地址，就能查看标准答案和学生成绩，还能调用 AI 出题。公网部署显然不能这样开放，所以我提出“现在完成教师登陆的开发”，同时保留学生免登录作答。", color=PRIMARY)
+add_heading("14.2 我的实现方式", 2)
 add_bullets([
-        "首次初始化直接升级本地系统账号，保留已有测验与作答归属；",
+        "首次初始化直接升级本地系统账号，已有测验与作答归属不变；",
         "使用 scrypt 保存密码哈希，MySQL 只保存会话令牌哈希；",
         "实现登录、退出、会话查询、密码强度校验与登录失败限流；",
         "保护教师页面、生成、编辑、发布、统计和导出 API；",
         "所有数据访问按 teacherId 隔离，学生公开作答保持免登录。",
 ])
-add_heading("14.3 权限验证", 2)
+add_heading("14.3 我做的权限验证", 2)
 add_table(["场景", "结果"], [
     ["未登录访问教师 API", "401"],
     ["未登录访问教师页面", "重定向到登录页"],
@@ -498,10 +499,10 @@ add_table(["场景", "结果"], [
     ["学生不带 Cookie 作答", "200"],
     ["错误密码", "统一提示并记录失败次数"],
 ], widths=[8.2, 7.8])
-add_para("后续根据用户反馈又完成手机号登录、8 位密码和始终显示注册入口等迭代。对应提交：d699a73、2d271d8、6e91786、8749514。")
+add_para("后续我又把登录方式改成手机号，密码最低长度调整为 8 位，并让登录页始终显示注册入口。对应提交：d699a73、2d271d8、6e91786、8749514。")
 
 # 15 复现
-new_section("15. 可复现性声明与 10 分钟重现指南")
+new_section("15. 我是怎样复现这套系统的")
 add_heading("15.1 环境清单", 2)
 add_table(["组件", "版本或要求"], [
     ["Node.js", "推荐 22.x，最低 20.9"],
@@ -522,15 +523,15 @@ add_bullets([
 ])
 
 # 16 验证
-new_section("16. 测试与真实验证结果")
-add_heading("16.1 自动化验证", 2)
+new_section("16. 我做了哪些验证")
+add_heading("16.1 我执行的自动化验证", 2)
 add_table(["验证类型", "覆盖内容", "结果"], [
     ["单元测试", "评分、字段兼容、排序、权限、手机号、限时、分享地址、北京时间等", "35 项全部通过"],
     ["类型检查", "TypeScript 严格检查", "通过"],
     ["生产构建", "Next.js 全部页面与 API", "通过"],
     ["冒烟测试", "教师认证、创建发布、满分/零分、重复提交、导出", "全链路通过"],
 ], widths=[3.1, 9.3, 3.6])
-add_heading("16.2 真实场景验证", 2)
+add_heading("16.2 我实际跑过的场景", 2)
 add_bullets([
         "真实模型生成 6 道题，题型顺序正确、总分 100、答案解析完整；",
         "MySQL 中实际存在 6 道题、2 份提交、12 条逐题答案；",
@@ -542,9 +543,9 @@ add_bullets([
 add_para("这些验证分别对应模型质量、数据一致性、权限、时间规则、部署和复现性，而不是仅凭页面截图判断完成度。", color=MUTED)
 
 # 17 原创与总结
-new_section("17. 原创性、局限与总结")
+new_section("17. 我的设计取舍与项目总结")
 add_heading("17.1 原创性与真实演进", 2)
-add_para("项目从空工作区开始，围绕真实课堂需求逐步形成。每次提交对应一次需求确认、功能落地或 Bug 修复；AI 负责代码建议与修改，用户持续进行范围收敛、真实接口验证和部署验收。Git 历史、AI 对话、测试和数据库记录可以相互印证，不是将已有开源项目包装后提交。")
+add_para("我从空工作区开始做这个项目，没有直接套用现成系统。每次提交都对应一次需求确认、功能落地或 Bug 修复。我负责确定需求、判断 AI 的建议是否合适，并实际验证接口、数据库和部署效果。Git 历史、开发会话、测试和数据库记录可以相互印证。")
 add_heading("17.2 当前局限", 2)
 add_bullets([
         "仅支持客观题与简短填空，不处理主观题和数学过程；",
@@ -553,9 +554,9 @@ add_bullets([
         "Cloudflare Quick Tunnel 地址可能变化，长期运行应使用命名隧道和固定域名。",
 ])
 add_heading("17.3 总结", 2)
-add_para("智测云的价值不只是“AI 能出题”，而是把模型输出纳入可控工程流程：用 Prompt 表达教学意图，用 Schema 约束结构，用教师审核保证内容质量，用 MySQL 和事务保存真实作答，用服务端评分与统计形成课堂闭环，再用真实对话、Git 演进和测试证明开发过程可信、可复现。")
+add_para("我认为智测云的价值不只是“AI 能出题”，而是我把模型输出纳入了可控的工程流程：用 Prompt 表达教学意图，用 Schema 约束结构，用教师审核保证内容质量，用 MySQL 和事务保存真实作答，再用服务端评分与统计形成课堂闭环。真实对话、Git 演进和测试则证明了这个过程不是拼出来的。")
 add_para("仓库：https://github.com/yufeixin1017/zhiceyun", bold_prefix="仓库：")
-add_para("公网演示地址：请填写提交时实际 PUBLIC_BASE_URL，并在评审期间保持服务与隧道在线。", bold_prefix="公网演示地址：")
+add_para("公网演示地址：https://luis-gratuit-validation-iii.trycloudflare.com。测试教师手机号为 16666666666，密码为 qwer@1234，仅供评审使用。", bold_prefix="公网演示地址：")
 
 # 保存
 for paragraph in doc.paragraphs:
