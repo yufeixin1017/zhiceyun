@@ -29,7 +29,7 @@ export function StudentQuiz({ quiz, deadline }: { quiz: PublicQuiz; deadline: st
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setError("");
-    if (!studentName.trim()) { setError("请先填写姓名或演示昵称"); return; }
+    if (!studentName.trim()) { setError("请先填写姓名"); return; }
     if (answeredCount !== quiz.questions.length) { setError(`还有 ${quiz.questions.length - answeredCount} 道题未作答，请完成后提交`); return; }
     if (quiz.questions.length >= 3 && !window.confirm("确认提交答案吗？提交后不能修改。")) return;
     setSubmitting(true);
@@ -55,8 +55,8 @@ export function StudentQuiz({ quiz, deadline }: { quiz: PublicQuiz; deadline: st
         <div className="student-meta"><span><FileText size={14} />{quiz.questions.length} 道题 · 100 分</span><span><Clock3 size={14} />限时 {quiz.durationMinutes} 分钟</span>{deadline && <Countdown deadline={deadline} />}</div>
       </section>
       <section className="card student-info" aria-label="作答人信息">
-        <div className="field" style={{ margin: 0 }}><label htmlFor="student-name">姓名或演示昵称 <span className="text-danger">*</span></label><input id="student-name" className="input" value={studentName} onChange={(event) => setStudentName(event.target.value)} placeholder="例如：张同学" maxLength={40} required /></div>
-        <div className="field" style={{ margin: 0 }}><label htmlFor="student-no">学号 <small>选填，用于防止重复提交</small></label><input id="student-no" className="input" value={studentNo} onChange={(event) => setStudentNo(event.target.value)} placeholder="演示时可使用虚拟学号" maxLength={40} /></div>
+        <div className="field" style={{ margin: 0 }}><label htmlFor="student-name">姓名 <span className="text-danger">*</span></label><input id="student-name" className="input" value={studentName} onChange={(event) => setStudentName(event.target.value)} placeholder="请输入姓名" maxLength={40} required /></div>
+        <div className="field" style={{ margin: 0 }}><label htmlFor="student-no">学号 <small>选填，用于防止重复提交</small></label><input id="student-no" className="input" value={studentNo} onChange={(event) => setStudentNo(event.target.value)} placeholder="请输入学号" maxLength={40} /></div>
       </section>
       <div className="answer-progress"><span>已完成 {answeredCount} / {quiz.questions.length}</span><div className="progress-track"><div className="progress-fill" style={{ width: `${(answeredCount / quiz.questions.length) * 100}%` }} /></div></div>
       {error && <div className="error-box" role="alert">{error}</div>}

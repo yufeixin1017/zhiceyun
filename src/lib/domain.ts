@@ -97,7 +97,7 @@ export const submissionSchema = z.object({
 });
 
 export const submitAnswersSchema = z.object({
-  studentName: z.string().trim().min(1, "请填写姓名或演示昵称").max(40),
+  studentName: z.string().trim().min(1, "请填写姓名").max(40),
   studentNo: z.string().trim().max(40).optional(),
   answers: z.record(z.string(), z.array(z.string().max(1000)).max(10)),
 });
